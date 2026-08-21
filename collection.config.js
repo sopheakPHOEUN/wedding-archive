@@ -11,13 +11,13 @@ const collection = {
   name: "Khmer widding",
 
   // One sentence: what is this archive, and why does it matter?
-  description: "A living archive of a piece of Khmer culture, built for ICT 340.",
+  description: "A tranditional khmer wedding, built for ICT 340.",
 
   // Who is building this archive? Your name, as you want it shown.
-  curator: "Your Name",
+  curator: "Sopheak",
 
   // Where does your knowledge come from? A person, a place, a community.
-  source: "To be gathered",
+  source: "gather from my grandparents, older relatives, and local elders who have participated in or organized Khmer weddings in my community",
 };
 
 export default collection;
