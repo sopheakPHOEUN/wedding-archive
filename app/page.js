@@ -16,7 +16,7 @@ const entries = [
     title: "Sien Doan Taa - សែនដូនតា",
     description: "This step is called as Tea Ceremony, at which the bride and groom offer tea to honor the spirits of their ancestors. It is a way for them to honor those who have passed before them and to invite their spirit to celebrate their wedding. It is a time to remember those near and dear to their hearts and remember to include them in their important life events.",
     contributor: "Local elder",
-    place: "Kompong Cham Province",
+    place: "Kompong Cham Province, Cambodia",
   },
 ];
 
