@@ -1,24 +1,8 @@
 import collection from "../collection.config.js";
 import EntryCard from "../components/EntryCard.js";
 
-// Sample entries for the EntryCard component.
-// TODO: replace both placeholder objects with your two real entries
-// (title, description, contributor, place) from your own collection.
-const entries = [
-  {
-    title: "Hai Goan Gomloh - ហែរកូនកំលោះ",
-    description: "Cambodian weddings begin with the groom and his family traveling to meet the bride’s family, bearing gifts for dowry, such as: meats, fruits, pastries, drinks and desserts. Guests are handed matching gold trays of fruits and gifts as they arrive so they can join in the procession, symbolic of his journey to the bride’s home. The trays will be arranged on the table. Family members and friends are introduced, and wedding rings will be exchanged.",
-    contributor: "Local elder",
-    place: "Kompong Cham Province, Cambodia",
-  },
-  {
-    // The empty description is on purpose: EntryCard handles blanks gracefully.
-    title: "Sien Doan Taa - សែនដូនតា",
-    description: "This step is called as Tea Ceremony, at which the bride and groom offer tea to honor the spirits of their ancestors. It is a way for them to honor those who have passed before them and to invite their spirit to celebrate their wedding. It is a time to remember those near and dear to their hearts and remember to include them in their important life events.",
-    contributor: "Local elder",
-    place: "Kompong Cham Province, Cambodia",
-  },
-];
+import entries from "../data/entries.js";
+// entries are now imported from data/entries.js
 
 const styles = {
   wrap: {
@@ -99,8 +83,15 @@ export default function Home() {
       </div>
 
       <div style={styles.entryRow}>
-        {entries.map((entry, index) => (
-          <EntryCard key={index} {...entry} />
+        {entries.map((entry) => (
+          <EntryCard
+            key={entry.id}
+            title={entry.titleKhmer}
+            titleEnglish={entry.titleEnglish}
+            description={entry.description}
+            contributor={entry.contributor}
+            place={entry.place}
+          />
         ))}
       </div>
 
