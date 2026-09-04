@@ -1,6 +1,6 @@
 // EntryCard shows one archive entry: title, description, contributor, place.
 // It is presentational only — the data arrives through props from page.js.
-export default function EntryCard({ title, description, contributor, place }) {
+export default function EntryCard({ title, description, contributor, place, titleEnglish }) {
   // An entry with no description yet still renders; we just skip that paragraph.
   const hasDescription =
     typeof description === "string" && description.trim().length > 0;
@@ -50,7 +50,9 @@ export default function EntryCard({ title, description, contributor, place }) {
   return (
     <article style={styles.card}>
       <p style={styles.kicker}>ARCHIVE ENTRY</p>
-      <h3 style={styles.title}>{title}</h3>
+      <h3 style={styles.title}>
+        {title}{titleEnglish ? ` ${titleEnglish}` : ""}
+      </h3>
       {hasDescription && <p style={styles.description}>{description}</p>}
       <p style={styles.meta}>
         CONTRIBUTED BY {contributor} — {place}
