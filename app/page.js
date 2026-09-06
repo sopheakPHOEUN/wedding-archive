@@ -1,8 +1,18 @@
+"use client";
+
+import React from "react";
 import collection from "../collection.config.js";
 import EntryCard from "../components/EntryCard.js";
 
 import entries from "../data/entries.js";
 // entries are now imported from data/entries.js
+
+const highlightMatch = (text, term) => {
+  if (!term) return text;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "ig");
+  return text.replace(regex, '<span style="background-color: #2EE6A8; color: #1C222C;">$1</span>');
+};
 
 const styles = {
   wrap: {
@@ -67,32 +77,57 @@ const styles = {
 };
 
 export default function Home() {
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const filteredEntries = entries.filter((entry) => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return true;
+    const matchesTitle =
+      entry.titleEnglish.toLowerCase().includes(term) ||
+      entry.titleKhmer.toLowerCase().includes(term);
+    const matchesDescription = entry.description.toLowerCase().includes(term);
+    return matchesTitle || matchesDescription;
+  });
+
   return (
     <main style={styles.wrap}>
       <p style={styles.kicker}>KHMER LIVING ARCHIVE</p>
       <h1 style={styles.title}>{collection.name}</h1>
       <p style={styles.description}>{collection.description}</p>
 
-      <div style={styles.card}>
-        <p style={styles.cardLabel}>CURATED BY</p>
-        <p style={styles.cardValue}>{collection.curator}</p>
-      </div>
-      <div style={styles.card}>
-        <p style={styles.cardLabel}>SOURCE</p>
-        <p style={styles.cardValue}>{collection.source}</p>
-      </div>
+      <input
+        style={{
+          padding: 12,
+          fontSize: 16,
+          border: "1px solid #2E3644",
+          borderRadius: 6,
+          width: "100%",
+          maxWidth: 400,
+          marginBottom: 32,
+          outline: "none",
+        }}
+        placeholder="Search entries..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
 
       <div style={styles.entryRow}>
-        {entries.map((entry) => (
-          <EntryCard
-            key={entry.id}
-            title={entry.titleKhmer}
-            titleEnglish={entry.titleEnglish}
-            description={entry.description}
-            contributor={entry.contributor}
-            place={entry.place}
-          />
-        ))}
+        {filteredEntries.length ? (
+          filteredEntries.map((entry) => (
+            <EntryCard
+              key={entry.id}
+              title={highlightMatch(entry.titleKhmer, searchTerm)}
+              titleEnglish={highlightMatch(entry.titleEnglish, searchTerm)}
+              description={highlightMatch(entry.description, searchTerm)}
+              contributor={entry.contributor}
+              place={entry.place}
+            />
+          ))
+        ) : (
+          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48 }}>
+            No results
+          </p>
+        )}
       </div>
 
       <p style={styles.count}>
