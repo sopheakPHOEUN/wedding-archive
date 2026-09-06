@@ -50,10 +50,8 @@ export default function EntryCard({ title, description, contributor, place, titl
   return (
     <article style={styles.card}>
       <p style={styles.kicker}>ARCHIVE ENTRY</p>
-      <h3 style={styles.title}>
-        {title}{titleEnglish ? ` ${titleEnglish}` : ""}
-      </h3>
-      {hasDescription && <p style={styles.description}>{description}</p>}
+      <h3 style={styles.title} dangerouslySetInnerHTML={{ __html: title + (titleEnglish ? ` ${titleEnglish}` : "") }} />
+      {hasDescription && <p style={styles.description} dangerouslySetInnerHTML={{ __html: description }} />}
       <p style={styles.meta}>
         CONTRIBUTED BY {contributor} — {place}
       </p>
