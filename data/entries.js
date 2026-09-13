@@ -31,7 +31,7 @@ const entries = [
     titleEnglish: "Hai Goan Gomloh",
     titleKhmer: "ហែរកូនកំលោះ",
     description:
-      "Cambodian weddings begin with the groom and his family traveling to meet the bride’s family, bearing gifts for dowry, such as: meats, fruits, pastries, drinks and desserts. Guests are handed matching gold trays of fruits and gifts as they arrive so they can join in the procession, symbolic of his journey to the bride’s home. The trays will be arranged on the table. Family members and friends are introduced, and wedding rings will be exchanged.",
+      "Hai Goan Gomloh is the important celebrity of the groom and his family traveling to meet bride’s family, bring gifts for dowry such as meats, fruits, drinks, desserts, and jewelry. Guests are handed with gold trays of gifts as they arrive, so they can join in the procession. Then the trays will be arranged on the table, then both family members and friends are introduced, and wedding rings will be exchanged.",
     contributor: "Lecturer Ry Phearom",
     place: "Kompong Cham Province, Cambodia",
     image: "",
@@ -46,6 +46,37 @@ const entries = [
     place: "Kompong Cham Province, Cambodia",
     image: "",
   },
+   {
+    id: 3,
+    titleEnglish: "Hair Cutting Ritual ",
+    titleKhmer: "កាត់សក់",
+    description:
+      "The symbolic hair cutting is another well known Cambodian wedding tradition. Family member and friend pretend to cut new couple hair, this represents cleaning the couple from their past and preparing them for starting a new life together.",
+    contributor: "Lecturer Ry Phearom",
+    place: "Kompong Cham Province, Cambodia",
+    image: "",
+  },
+  {
+    id: 4,
+    titleEnglish: "Knot Typing Ceremony",
+    titleKhmer: "ពិធីសំពះផ្ទឹម",
+    description:
+      "This is a memorial ceremony for the new couple’s binding together. This celebrate by family members, and friends tie their hand with red blessing string and wish to the new couple. The red strings are symbolic of two people coming together and forever love.",
+    contributor: "My Mom",
+    place: "Thbong Khmum Province, Cambodia",
+    image: "",
+  },
+  {
+    id: 5,
+    titleEnglish: "Bongvul Pbopul",
+    titleKhmer: "បង្វិលពពិល",
+    description:
+      "Bongvul Pbopul is an important ceremony and special that cannot be ignored for each wedding because Cambodians believe that it can bring happiness to the new couple. This ceremony involves a restriction which participation is only for men and women who have married. The new couple kneels in the middle of a circle of already married couples, three lit candles are passed around seven times and their smoke waved towards the new couple.",
+    contributor: "My Aunt",
+    place: "Thbong Khmum Province, Cambodia",
+    image: "",
+  },
+
 ];
 
 export default entries;
