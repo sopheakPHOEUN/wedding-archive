@@ -59,7 +59,7 @@ const styles = {
     display: "flex",
     flexWrap: "wrap",
     gap: 16,
-    marginTop: 48,
+    marginTop: 24,
   },
   count: {
     fontFamily: "'Courier New', monospace",
@@ -82,11 +82,24 @@ export default function Home() {
   const filteredEntries = entries.filter((entry) => {
     const term = searchTerm.toLowerCase().trim();
     if (!term) return true;
-    const matchesTitle =
-      entry.titleEnglish.toLowerCase().includes(term) ||
-      entry.titleKhmer.toLowerCase().includes(term);
-    const matchesDescription = entry.description.toLowerCase().includes(term);
-    return matchesTitle || matchesDescription;
+
+    // Split search term into words for flexible partial-word matching
+    // e.g. "Goan Gomloh" → ["goan", "gomloh"]; single chars work too
+    const searchTerms = term.split(/\s+/);
+
+    // Check if any search term appears as a substring in the given text
+    const matchesField = (text) => {
+      if (!text) return false;
+      const lowerText = text.toLowerCase();
+      return searchTerms.some((t) => lowerText.includes(t));
+    };
+
+    const matchesTitle = matchesField(entry.titleEnglish) || matchesField(entry.titleKhmer);
+    const matchesDescription = matchesField(entry.description);
+    const matchesContributor = matchesField(entry.contributor);
+    const matchesPlace = matchesField(entry.place);
+
+    return matchesTitle || matchesDescription || matchesContributor || matchesPlace;
   });
 
   return (
@@ -102,14 +115,18 @@ export default function Home() {
           border: "1px solid #2E3644",
           borderRadius: 6,
           width: "100%",
-          maxWidth: 400,
-          marginBottom: 32,
+          maxWidth: 550,
+          marginBottom: 16,
           outline: "none",
         }}
         placeholder="Search entries..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+
+      <p style={{ fontFamily: "'Courier New', monospace", fontSize: 14, color: "#2EE6A8", marginTop: 12 }}>
+        {filteredEntries.length} entries
+      </p>
 
       <div style={styles.entryRow}>
         {filteredEntries.length ? (
