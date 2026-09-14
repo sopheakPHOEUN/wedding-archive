@@ -8,7 +8,7 @@
 
 const collection = {
   // What does your archive collect? e.g. "Khmer Proverbs"
-  name: "Khmer widding",
+  name: "Khmer Wedding Ceremony",
 
   // One sentence: what is this archive, and why does it matter?
   description: "An archive documenting the traditional order and rituals of a Khmer wedding ceremony. ",
