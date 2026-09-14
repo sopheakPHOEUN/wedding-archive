@@ -26,8 +26,28 @@
 // ============================================================
 
 const entries = [
-  {
+   {
     id: 1,
+    titleEnglish: "Krong Pali Ceremony",
+    titleKhmer: "ពិធីសែនក្រុងពាលី",
+    description:
+      "Krong Pali Ceremony is a traditional belief ritual for Cambodian. They performed to pray for happiness and ask for permission from the local guardian spirits, earth deities, and protectors of the land before they start build ceremony.",
+    contributor: "Grandpa Sam Thong​",
+    place: "Kompong Cham Province, Cambodia",
+    image: "",
+  },
+   {
+    id: 2,
+    titleEnglish: "Bok Leak Ceremony",
+    titleKhmer: "ការធ្វើធ្មេញ (បុកល័ក្ក)",
+    description:
+      "The Bok Leak ceremony is a traditional Khmer custom performed during weddings to enhance the bride's beauty and celebrate her transition into womanhood, signifying that she has reached the age of maturity and is ready for family life.",
+    contributor: "Grandpa Sam Thong",
+    place: "Kompong Cham Province, Cambodia",
+    image: "",
+  },
+  {
+    id: 3,
     titleEnglish: "Hai Goan Gomloh",
     titleKhmer: "ហែរកូនកំលោះ",
     description:
@@ -37,7 +57,7 @@ const entries = [
     image: "",
   },
   {
-    id: 2,
+    id: 4,
     titleEnglish: "Sien Doan Taa",
     titleKhmer: "សែនដូនតា",
     description:
@@ -47,7 +67,7 @@ const entries = [
     image: "",
   },
    {
-    id: 3,
+    id: 5,
     titleEnglish: "Hair Cutting Ritual ",
     titleKhmer: "កាត់សក់",
     description:
@@ -57,23 +77,33 @@ const entries = [
     image: "",
   },
   {
-    id: 4,
+    id: 6,
     titleEnglish: "Knot Typing Ceremony",
     titleKhmer: "ពិធីសំពះផ្ទឹម",
     description:
       "This is a memorial ceremony for the new couple’s binding together. This celebrate by family members, and friends tie their hand with red blessing string and wish to the new couple. The red strings are symbolic of two people coming together and forever love.",
-    contributor: "My Mom",
-    place: "Thbong Khmum Province, Cambodia",
+    contributor: "Lecturer Chot Somnang",
+    place: "Kompong Cham Province, Cambodia",
+    image: "",
+  },
+   {
+    id: 7,
+    titleEnglish: "Preah Thong Holding the Sbai ",
+    titleKhmer: "ពិធីព្រះថោងតោងស្បៃ",
+    description:
+      " Preah Thong holding the sbai is the symbol of unity, the origin of the nation, and respect for the role of women. Furthermore, This ceremony marks the final stage of the wedding ceremony following the Sampeas Phtim during which the groom holds onto the bride's scarf and follows her into the room.",
+    contributor: "Ms. Heab Sokha",
+    place: "Kompong Cham Province, Cambodia",
     image: "",
   },
   {
-    id: 5,
+    id: 8,
     titleEnglish: "Bongvul Pbopul",
     titleKhmer: "បង្វិលពពិល",
     description:
       "Bongvul Pbopul is an important ceremony and special that cannot be ignored for each wedding because Cambodians believe that it can bring happiness to the new couple. This ceremony involves a restriction which participation is only for men and women who have married. The new couple kneels in the middle of a circle of already married couples, three lit candles are passed around seven times and their smoke waved towards the new couple.",
-    contributor: "My Aunt",
-    place: "Thbong Khmum Province, Cambodia",
+    contributor: "Ms. Heab Sokha",
+    place: "Kompong Cham Province, Cambodia",
     image: "",
   },
 
