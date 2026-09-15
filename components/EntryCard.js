@@ -11,7 +11,9 @@ export default function EntryCard({ title, description, contributor, place, titl
       minWidth: 280,
       padding: 24,
       backgroundColor: "#1C222C",
-      border: "1px solid #2E3644",
+      borderWidth: 1,
+      borderStyle: "solid",
+      borderColor: "#2E3644",
       borderRadius: 10,
     },
     kicker: {

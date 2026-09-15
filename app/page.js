@@ -42,7 +42,9 @@ const styles = {
     marginTop: 48,
     padding: 24,
     backgroundColor: "#1C222C",
-    border: "1px solid #2E3644",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#2E3644",
     borderRadius: 10,
   },
   cardLabel: {
@@ -70,7 +72,9 @@ const styles = {
   footer: {
     marginTop: 64,
     paddingTop: 24,
-    borderTop: "1px solid #2E3644",
+    borderTopWidth: 1,
+    borderTopStyle: "solid",
+    borderTopColor: "#2E3644",
     fontSize: 13,
     color: "#5A6373",
   },
@@ -112,7 +116,9 @@ export default function Home() {
         style={{
           padding: 12,
           fontSize: 16,
-          border: "1px solid #2E3644",
+          borderWidth: 1,
+          borderStyle: "solid",
+          borderColor: "#2E3644",
           borderRadius: 6,
           width: "100%",
           maxWidth: 550,
