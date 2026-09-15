@@ -3,6 +3,7 @@
 import React from "react";
 import collection from "../collection.config.js";
 import EntryCard from "../components/EntryCard.js";
+import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 
 import entries from "../data/entries.js";
 // entries are now imported from data/entries.js
@@ -78,10 +79,103 @@ const styles = {
     fontSize: 13,
     color: "#5A6373",
   },
+  authContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: "#1C222C",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#2E3644",
+    borderRadius: 8,
+  },
+  authText: {
+    fontSize: 14,
+    color: "#E8EDF2",
+    margin: 0,
+  },
+  authEmail: {
+    fontWeight: 600,
+    color: "#2EE6A8",
+  },
+  authLinks: {
+    display: "flex",
+    gap: 16,
+    marginTop: 24,
+  },
+  authLink: {
+    color: "#2EE6A8",
+    textDecoration: "none",
+    fontSize: 14,
+    padding: "8px 16px",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#2EE6A8",
+    borderRadius: 6,
+    transition: "all 0.2s",
+  },
+  authLinkHover: {
+    backgroundColor: "#2EE6A8",
+    color: "#1C222C",
+  },
+  logoutButton: {
+    backgroundColor: "transparent",
+    color: "#FF4B4B",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#FF4B4B",
+    borderRadius: 6,
+    padding: "6px 12px",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.2s",
+    marginLeft: "auto",
+  },
+  logoutButtonHover: {
+    backgroundColor: "#FF4B4B",
+    color: "#1C222C",
+  },
 };
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [user, setUser] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [logoutHover, setLogoutHover] = React.useState(false);
+  const [loginHover, setLoginHover] = React.useState(false);
+  const [signupHover, setSignupHover] = React.useState(false);
+
+  React.useEffect(() => {
+    async function getUser() {
+      try {
+        const supabase = createBrowserSupabaseClient();
+        const { data } = await supabase.auth.getUser();
+        setUser(data?.user || null);
+      } catch (error) {
+        console.error("Error getting user:", error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+      setUser(null);
+      // Refresh the page to ensure clean state
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   const filteredEntries = entries.filter((entry) => {
     const term = searchTerm.toLowerCase().trim();
@@ -111,6 +205,53 @@ export default function Home() {
       <p style={styles.kicker}>KHMER LIVING ARCHIVE</p>
       <h1 style={styles.title}>{collection.name}</h1>
       <p style={styles.description}>{collection.description}</p>
+
+      {/* Authentication Section */}
+      {!loading && (
+        user ? (
+          <div style={styles.authContainer}>
+            <p style={styles.authText}>
+              Welcome, <span style={styles.authEmail}>{user.email}</span>
+            </p>
+            <button
+              style={{
+                ...styles.logoutButton,
+                ...(logoutHover ? styles.logoutButtonHover : {})
+              }}
+              onClick={handleLogout}
+              onMouseEnter={() => setLogoutHover(true)}
+              onMouseLeave={() => setLogoutHover(false)}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <div style={styles.authLinks}>
+            <a
+              href="/login"
+              style={{
+                ...styles.authLink,
+                ...(loginHover ? styles.authLinkHover : {})
+              }}
+              onMouseEnter={() => setLoginHover(true)}
+              onMouseLeave={() => setLoginHover(false)}
+            >
+              Log In
+            </a>
+            <a
+              href="/signup"
+              style={{
+                ...styles.authLink,
+                ...(signupHover ? styles.authLinkHover : {})
+              }}
+              onMouseEnter={() => setSignupHover(true)}
+              onMouseLeave={() => setSignupHover(false)}
+            >
+              Sign Up
+            </a>
+          </div>
+        )
+      )}
 
       <input
         style={{
