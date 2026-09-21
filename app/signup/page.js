@@ -28,16 +28,18 @@ export default function SignupPage() {
       });
       
       if (error) {
-        // For security, show only a generic error message
-        setError("Invalid email or password");
-        console.error("Signup error:", error.message);
+        // Show user-friendly message for password policy errors, generic for others
+        if (error.message.includes("Password should contain at least one character of each")) {
+          setError("Password must contain at least a letter and number");
+        } else {
+          setError("Invalid email or password");
+        }
       } else {
         // Signup successful - redirect to home page
         router.push("/");
       }
     } catch (err) {
       setError("Invalid email or password");
-      console.error("Signup error:", err.message);
     } finally {
       setIsLoading(false);
     }
