@@ -5,10 +5,10 @@ import collection from "../collection.config.js";
 import EntryCard from "../components/EntryCard.js";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 
-import entries from "../data/entries.js";
-// entries are now imported from data/entries.js
+// entries will be fetched from Supabase instead of importing from data/entries.js
 
 const highlightMatch = (text, term) => {
+  if (!text) return "";
   if (!term) return text;
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(`(${escaped})`, "ig");
@@ -147,6 +147,8 @@ export default function Home() {
   const [logoutHover, setLogoutHover] = React.useState(false);
   const [loginHover, setLoginHover] = React.useState(false);
   const [signupHover, setSignupHover] = React.useState(false);
+  const [entries, setEntries] = React.useState([]);
+  const [loadingEntries, setLoadingEntries] = React.useState(true);
 
   React.useEffect(() => {
     async function getUser() {
@@ -163,6 +165,45 @@ export default function Home() {
     }
 
     getUser();
+  }, []);
+
+  // Fetch entries from Supabase
+  React.useEffect(() => {
+    async function fetchEntries() {
+      try {
+        const supabase = createBrowserSupabaseClient();
+        // First try ordering by created_at (newest first)
+        const { data, error } = await supabase
+          .from("entries")
+          .select("*")
+          .order("created_at", { ascending: false });
+        
+        if (error) {
+          console.error("Error fetching entries with created_at order:", error);
+          // Fall back to ordering by id if created_at doesn't exist
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from("entries")
+            .select("*")
+            .order("id", { ascending: false });
+          
+          if (fallbackError) {
+            console.error("Error fetching entries with id order:", fallbackError);
+            setEntries([]);
+          } else {
+            setEntries(fallbackData || []);
+          }
+        } else {
+          setEntries(data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching entries:", error);
+        setEntries([]);
+      } finally {
+        setLoadingEntries(false);
+      }
+    }
+
+    fetchEntries();
   }, []);
 
   const handleLogout = async () => {
@@ -192,10 +233,17 @@ export default function Home() {
       return searchTerms.some((t) => lowerText.includes(t));
     };
 
-    const matchesTitle = matchesField(entry.titleEnglish) || matchesField(entry.titleKhmer);
-    const matchesDescription = matchesField(entry.description);
-    const matchesContributor = matchesField(entry.contributor);
-    const matchesPlace = matchesField(entry.place);
+    // Handle both snake_case (from database) and camelCase (from data file) property names
+    const titleEnglish = entry.title_english || entry.titleEnglish || "";
+    const titleKhmer = entry.title_khmer || entry.titleKhmer || "";
+    const description = entry.description || "";
+    const contributor = entry.contributor || "";
+    const place = entry.place || "";
+
+    const matchesTitle = matchesField(titleEnglish) || matchesField(titleKhmer);
+    const matchesDescription = matchesField(description);
+    const matchesContributor = matchesField(contributor);
+    const matchesPlace = matchesField(place);
 
     return matchesTitle || matchesDescription || matchesContributor || matchesPlace;
   });
@@ -272,30 +320,38 @@ export default function Home() {
       />
 
       <p style={{ fontFamily: "'Courier New', monospace", fontSize: 14, color: "#2EE6A8", marginTop: 12 }}>
-        {filteredEntries.length} entries
+        {loadingEntries ? "Loading..." : `${filteredEntries.length} entries`}
       </p>
 
       <div style={styles.entryRow}>
-        {filteredEntries.length ? (
+        {loadingEntries ? (
+          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48, width: "100%" }}>
+            Loading entries...
+          </p>
+        ) : filteredEntries.length ? (
           filteredEntries.map((entry) => (
             <EntryCard
               key={entry.id}
-              title={highlightMatch(entry.titleKhmer, searchTerm)}
-              titleEnglish={highlightMatch(entry.titleEnglish, searchTerm)}
-              description={highlightMatch(entry.description, searchTerm)}
-              contributor={entry.contributor}
-              place={entry.place}
+              title={highlightMatch(entry.title_khmer || entry.titleKhmer || "", searchTerm)}
+              titleEnglish={highlightMatch(entry.title_english || entry.titleEnglish || "", searchTerm)}
+              description={highlightMatch(entry.description || "", searchTerm)}
+              contributor={entry.contributor || ""}
+              place={entry.place || ""}
             />
           ))
+        ) : searchTerm ? (
+          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48, width: "100%" }}>
+            No results found for "{searchTerm}"
+          </p>
         ) : (
-          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48 }}>
-            No results
+          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48, width: "100%" }}>
+            No entries in the archive yet
           </p>
         )}
       </div>
 
       <p style={styles.count}>
-        entries in the archive: {entries.length} (sample entries for now)
+        {loadingEntries ? "Loading..." : `entries in the archive: ${entries.length}`}
       </p>
 
       <footer style={styles.footer}>
