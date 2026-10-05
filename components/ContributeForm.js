@@ -1,5 +1,7 @@
-// ContributeForm.js - The form that saves a new entry to Supabase.
-// Validation, photo upload, and the insert live in lib/contribute.js.
+// ContributeForm.js - The archive entry form.
+// /contribute uses it for new entries; the edit page reuses the same form
+// pre-filled, passing initialValues/initialImage and its own onSubmit.
+// Validation and the save calls live in lib/contribute.js and lib/entries.js.
 "use client";
 
 import React from "react";
@@ -35,15 +37,23 @@ const TEXT_FIELDS = [
   },
 ];
 
-export default function ContributeForm() {
+export default function ContributeForm({
+  initialValues = {},
+  initialImage = "",
+  onSubmit,
+  submitLabel = "Submit Entry",
+  submittingLabel = "Uploading and saving…",
+  optionalPhoto = false,
+}) {
   const router = useRouter();
+  const currentImage = initialValues.image_url || initialImage || "";
   const [values, setValues] = React.useState({
-    title_khmer: "",
-    title_english: "",
-    description: "",
-    contributor: "",
-    place: "",
-    image_url: "",
+    title_khmer: initialValues.title_khmer || "",
+    title_english: initialValues.title_english || "",
+    description: initialValues.description || "",
+    contributor: initialValues.contributor || "",
+    place: initialValues.place || "",
+    image_url: currentImage,
   });
   const [imageFile, setImageFile] = React.useState(null);
   const [fieldErrors, setFieldErrors] = React.useState({});
@@ -67,23 +77,32 @@ export default function ContributeForm() {
     setGeneralError("");
   };
 
+  // The default save action matches /contribute's behavior exactly: validate,
+  // upload the photo if one was chosen, and insert a new row owned by the
+  // session user.
+  const defaultSubmit = async ({ values, imageFile }) => {
+    const supabase = createBrowserSupabaseClient();
+    return submitEntry({ supabase, values, imageFile });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (submitting) return;
     setSubmitting(true);
     setGeneralError("");
     try {
-      const supabase = createBrowserSupabaseClient();
-      const result = await submitEntry({ supabase, values, imageFile });
+      const doSubmit = onSubmit || defaultSubmit;
+      const result = await doSubmit({ values, imageFile });
       if (result.ok) {
-        // The archive home lists the newest entry first.
-        router.push("/");
+        // The edit page returns a redirectTo so the user lands back on the
+        // entry; new entries go home, where the newest one is listed first.
+        router.push(result.redirectTo || "/");
         return;
       }
       setFieldErrors(result.fieldErrors || {});
       if (result.message) setGeneralError(result.message);
     } catch (error) {
-      console.error("Contribute form error:", error);
+      console.error("Entry form error:", error);
       setGeneralError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
@@ -132,6 +151,18 @@ export default function ContributeForm() {
         hint="Pick one: upload a photo from your device, or paste a full http(s) link to a photo. Uploaded photos are stored in our photos bucket."
         error={error("image")}
       >
+        {currentImage && !imageFile ? (
+          <img
+            src={currentImage}
+            alt="Current photo"
+            className="form-current-photo"
+          />
+        ) : null}
+        {optionalPhoto ? (
+          <p className="form-hint">
+            Leave the photo as-is to keep the current one.
+          </p>
+        ) : null}
         <input
           id="image_file"
           className="form-file"
@@ -154,7 +185,7 @@ export default function ContributeForm() {
       </FormField>
 
       <button type="submit" className="form-submit" disabled={submitting}>
-        {submitting ? "Uploading and saving…" : "Submit Entry"}
+        {submitting ? submittingLabel : submitLabel}
       </button>
     </form>
   );

@@ -189,3 +189,12 @@
 .contribute-home-link:hover {
   text-decoration: underline;
 }
+/* The current photo shown on the edit form (pre-filled entry). */
+.form-current-photo {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  border: 1px solid #2e3644;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}

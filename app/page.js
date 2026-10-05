@@ -332,6 +332,7 @@ export default function Home() {
           filteredEntries.map((entry) => (
             <EntryCard
               key={entry.id}
+              id={entry.id}
               title={highlightMatch(entry.title_khmer || entry.titleKhmer || "", searchTerm)}
               titleEnglish={highlightMatch(entry.title_english || entry.titleEnglish || "", searchTerm)}
               description={highlightMatch(entry.description || "", searchTerm)}

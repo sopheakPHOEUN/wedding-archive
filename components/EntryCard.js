@@ -1,20 +1,28 @@
 // EntryCard shows one archive entry: title, description, contributor, place.
-// It is presentational only — the data arrives through props from page.js.
-export default function EntryCard({ title, description, contributor, place, titleEnglish }) {
+// The whole card links to the entry's own page, where the owner can edit or
+// delete it. The data arrives through props from page.js.
+import Link from "next/link";
+
+export default function EntryCard({ id, title, description, contributor, place, titleEnglish }) {
   // An entry with no description yet still renders; we just skip that paragraph.
   const hasDescription =
     typeof description === "string" && description.trim().length > 0;
 
   const styles = {
     card: {
-      flex: 1,
-      minWidth: 280,
       padding: 24,
       backgroundColor: "#1C222C",
       borderWidth: 1,
       borderStyle: "solid",
       borderColor: "#2E3644",
       borderRadius: 10,
+    },
+    link: {
+      flex: 1,
+      minWidth: 280,
+      display: "block",
+      textDecoration: "none",
+      color: "inherit",
     },
     kicker: {
       fontFamily: "'Courier New', monospace",
@@ -50,13 +58,15 @@ export default function EntryCard({ title, description, contributor, place, titl
   };
 
   return (
-    <article style={styles.card}>
-      <p style={styles.kicker}>ARCHIVE ENTRY</p>
-      <h3 style={styles.title} dangerouslySetInnerHTML={{ __html: title + (titleEnglish ? ` ${titleEnglish}` : "") }} />
-      {hasDescription && <p style={styles.description} dangerouslySetInnerHTML={{ __html: description }} />}
-      <p style={styles.meta}>
-        CONTRIBUTED BY {contributor} — {place}
-      </p>
-    </article>
+    <Link href={`/entries/${id}`} style={styles.link}>
+      <article style={styles.card}>
+        <p style={styles.kicker}>ARCHIVE ENTRY</p>
+        <h3 style={styles.title} dangerouslySetInnerHTML={{ __html: title + (titleEnglish ? ` ${titleEnglish}` : "") }} />
+        {hasDescription && <p style={styles.description} dangerouslySetInnerHTML={{ __html: description }} />}
+        <p style={styles.meta}>
+          CONTRIBUTED BY {contributor} — {place}
+        </p>
+      </article>
+    </Link>
   );
 }
