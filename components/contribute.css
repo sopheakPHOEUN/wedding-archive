@@ -1,0 +1,191 @@
+/* components/contribute.css
+   Styles for the /contribute page and its form. A plain CSS file, as
+   allowed by AGENTS.md, so the form component stays small. Uses the same
+   palette as the rest of the app (#14181F page, #1C222C cards, #2EE6A8
+   accent, #FF4B4B errors). */
+
+.contribute-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+
+.contribute-kicker {
+  font-family: "Courier New", monospace;
+  color: #2ee6a8;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.contribute-title {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 16px 0 12px;
+  line-height: 1.1;
+  color: #e8edf2;
+}
+
+.contribute-subtitle {
+  font-size: 16px;
+  color: #97a1b3;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.contribute-card {
+  margin-top: 32px;
+  padding: 24px;
+  background-color: #1c222c;
+  border: 1px solid #2e3644;
+  border-radius: 10px;
+}
+
+.contribute-status {
+  margin-top: 32px;
+  color: #97a1b3;
+  text-align: center;
+}
+
+.form-field {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #97a1b3;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  color: #e8edf2;
+  background-color: #1c222c;
+  border: 1px solid #2e3644;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #2ee6a8;
+}
+
+.form-input:disabled,
+.form-textarea:disabled,
+.form-file:disabled {
+  opacity: 0.6;
+}
+
+/* Khmer script needs a Khmer font and generous line height. */
+.form-input-khmer,
+.form-textarea {
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  line-height: 1.7;
+}
+
+.form-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.form-file {
+  color-scheme: dark;
+  font-size: 14px;
+  color: #97a1b3;
+  border: 1px dashed #2e3644;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.form-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #5a6373;
+}
+
+.form-field-error {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #ff4b4b;
+}
+
+.form-error-banner {
+  margin: 0 0 16px;
+  padding: 12px;
+  background-color: rgba(255, 75, 75, 0.1);
+  border: 1px solid rgba(255, 75, 75, 0.3);
+  border-radius: 6px;
+  color: #ff4b4b;
+  font-size: 14px;
+  text-align: center;
+}
+
+.form-submit {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #2ee6a8;
+  color: #1c222c;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-submit:hover:not(:disabled) {
+  background-color: #1cffb0;
+}
+
+.form-submit:disabled {
+  background-color: #1a5c46;
+  color: #b8c4d1;
+  cursor: not-allowed;
+}
+
+.contribute-gate-text {
+  margin: 0 0 16px;
+  font-size: 15px;
+  color: #e8edf2;
+  line-height: 1.6;
+}
+
+.contribute-gate-links {
+  display: flex;
+  gap: 16px;
+}
+
+.contribute-gate-link {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #2ee6a8;
+  text-decoration: none;
+  border: 1px solid #2ee6a8;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.contribute-gate-link:hover {
+  background-color: #2ee6a8;
+  color: #1c222c;
+}
+
+.contribute-home-link {
+  display: inline-block;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #2ee6a8;
+  text-decoration: none;
+}
+
+.contribute-home-link:hover {
+  text-decoration: underline;
+}
