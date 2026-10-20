@@ -1,0 +1,405 @@
+/* components/archive.css
+   Styles for the archive home page: the sticky top navigation, the hero,
+   the search bar, and the entry cards. A plain CSS file (allowed by
+   AGENTS.md), the same pattern as components/contribute.css. Imported by
+   app/page.js, components/Header.js, and components/EntryCard.js.
+
+   Palette shared with the rest of the app: #14181F page, #1C222C panels,
+   #2E3644 borders, #E8EDF2 text, #2EE6A8 accent. Secondary and small text
+   uses the lighter slate shades for readability on the dark background:
+   #CBD5E1 (slate-300) for the subtitle, captions, and counters, and #94A3B8
+   (slate-400) for tiny labels and meta. The green accent is reserved for
+   primary actions and links so the layout stays calm and editorial. */
+
+/* ---------------- Top navigation ---------------- */
+
+.archive-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 24px;
+  height: 60px;
+  background-color: #14181f;
+  border-bottom: 1px solid #2e3644;
+}
+
+.archive-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.archive-brand:hover {
+  color: #e8edf2;
+}
+
+.archive-brand-mark {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #2ee6a8;
+  flex-shrink: 0;
+}
+
+.archive-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.archive-user {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+/* Log In is a quiet text link; Sign Up is the single green action. */
+.archive-link {
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #cbd5e1;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.archive-link:hover {
+  color: #e8edf2;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.archive-link-primary {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #14181f;
+  background-color: #2ee6a8;
+  border-radius: 9px;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.archive-link-primary:hover {
+  background-color: #1cffb0;
+  transform: translateY(-1px);
+}
+
+.archive-logout {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff4b4b;
+  background-color: transparent;
+  border: 1px solid rgba(255, 75, 75, 0.45);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.archive-logout:hover {
+  background-color: rgba(255, 75, 75, 0.12);
+  color: #ff6b6b;
+}
+
+/* ---------------- Hero ---------------- */
+
+.archive-main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.archive-hero {
+  padding: 112px 0 32px;
+  text-align: center;
+}
+
+.archive-title {
+  font-size: clamp(36px, 5.5vw, 60px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 24px;
+}
+
+.archive-description {
+  font-size: 18px;
+  line-height: 1.75;
+  color: #cbd5e1;
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+/* ---------------- Search ---------------- */
+
+.archive-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: 56px auto 0;
+}
+
+.archive-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.archive-search {
+  width: 100%;
+  padding: 15px 20px 15px 50px;
+  font-size: 16px;
+  color: #f2f5f8;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.archive-search::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.archive-search:hover {
+  border-color: #475569;
+}
+
+.archive-search:focus {
+  border-color: #2ee6a8;
+  background-color: #14181f;
+  box-shadow: 0 0 0 3px rgba(46, 230, 168, 0.12);
+}
+
+.archive-search-wrap:focus-within .archive-search-icon {
+  color: #cbd5e1;
+}
+
+/* ---------------- Count and status ---------------- */
+
+.archive-count {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #cbd5e1;
+  margin: 28px 0 0;
+}
+
+.archive-status {
+  grid-column: 1 / -1;
+  color: #cbd5e1;
+  text-align: center;
+  padding: 48px 0 0;
+}
+
+/* ---------------- Entry cards ---------------- */
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.entry-card-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+.entry-card-link:focus-visible {
+  outline: none;
+}
+
+.entry-card-link:focus-visible .entry-card {
+  border-color: #2ee6a8;
+  box-shadow: 0 0 0 3px rgba(46, 230, 168, 0.15);
+}
+
+.entry-card {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #1c222c;
+  border: 1px solid #2e3644;
+  border-radius: 16px;
+  transition: transform 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.entry-card:hover {
+  transform: translateY(-4px);
+  border-color: #3a4556;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* The photo is the main visual focus: a consistent 16:9 crop that gently
+   zooms on hover. */
+.entry-card-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.entry-card:hover .entry-card-image {
+  transform: scale(1.04);
+}
+
+.entry-card-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1c222c 0%, #202837 100%);
+  color: #3a4556;
+  font-size: 24px;
+}
+
+.entry-card-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry-card-kicker {
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin: 0 0 10px;
+}
+
+.entry-card-title-khmer {
+  /* Khmer needs a Khmer font and a roomy line height; no letter-spacing
+     or uppercase transforms, which distort or clip the glyphs. */
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.entry-card-title-english {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: #cbd5e1;
+  margin: 0 0 16px;
+}
+
+.entry-card-description {
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.entry-card-meta {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #2e3644;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+.entry-card-more {
+  margin: 12px 0 0;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2ee6a8;
+  transition: color 0.2s ease;
+}
+
+.entry-card:hover .entry-card-more {
+  color: #1cffb0;
+}
+
+/* ---------------- Footer ---------------- */
+
+.archive-footer {
+  margin-top: 72px;
+  padding: 24px 0 56px;
+  border-top: 1px solid #2e3644;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #94a3b8;
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 720px) {
+  .archive-header {
+    height: 56px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .archive-user {
+    max-width: 140px;
+  }
+
+  .archive-main {
+    padding: 0 16px;
+  }
+
+  .archive-hero {
+    padding: 64px 0 20px;
+  }
+
+  .archive-title {
+    font-size: 34px;
+  }
+
+  .archive-description {
+    font-size: 16px;
+  }
+
+  .archive-search-wrap {
+    max-width: 100%;
+    margin: 40px auto 0;
+  }
+
+  .archive-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .entry-card-title-khmer {
+    font-size: 21px;
+  }
+}

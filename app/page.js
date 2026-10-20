@@ -1,152 +1,35 @@
+// app/page.js - The archive home page.
+//
+// Structure: a sticky nav (components/Header.js) with the account actions on
+// the right, a hero (kicker + archive title + subtitle), the search bar, and
+// a responsive grid of entry cards. Entries are fetched from Supabase, search
+// filters them client-side, and matching text is highlighted in the accent
+// color. The fetching, filtering, and auth logic below is unchanged.
+// Styles live in components/archive.css.
 "use client";
 
 import React from "react";
 import collection from "../collection.config.js";
+import Header from "../components/Header.js";
 import EntryCard from "../components/EntryCard.js";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
-
-// entries will be fetched from Supabase instead of importing from data/entries.js
+import "../components/archive.css";
 
 const highlightMatch = (text, term) => {
   if (!text) return "";
   if (!term) return text;
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(`(${escaped})`, "ig");
-  return text.replace(regex, '<span style="background-color: #2EE6A8; color: #1C222C;">$1</span>');
-};
-
-const styles = {
-  wrap: {
-    maxWidth: 720,
-    margin: "0 auto",
-    padding: "80px 24px",
-  },
-  kicker: {
-    fontFamily: "'Courier New', monospace",
-    color: "#2EE6A8",
-    fontSize: 14,
-    letterSpacing: 1,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 700,
-    margin: "16px 0 12px",
-    lineHeight: 1.1,
-  },
-  description: {
-    fontSize: 18,
-    color: "#97A1B3",
-    lineHeight: 1.6,
-    margin: 0,
-  },
-  card: {
-    marginTop: 48,
-    padding: 24,
-    backgroundColor: "#1C222C",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#2E3644",
-    borderRadius: 10,
-  },
-  cardLabel: {
-    fontFamily: "'Courier New', monospace",
-    fontSize: 12,
-    color: "#97A1B3",
-    margin: 0,
-  },
-  cardValue: {
-    fontSize: 16,
-    margin: "6px 0 0",
-  },
-  entryRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 16,
-    marginTop: 24,
-  },
-  count: {
-    fontFamily: "'Courier New', monospace",
-    fontSize: 14,
-    color: "#2EE6A8",
-    marginTop: 48,
-  },
-  footer: {
-    marginTop: 64,
-    paddingTop: 24,
-    borderTopWidth: 1,
-    borderTopStyle: "solid",
-    borderTopColor: "#2E3644",
-    fontSize: 13,
-    color: "#5A6373",
-  },
-  authContainer: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    marginTop: 24,
-    padding: 16,
-    backgroundColor: "#1C222C",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#2E3644",
-    borderRadius: 8,
-  },
-  authText: {
-    fontSize: 14,
-    color: "#E8EDF2",
-    margin: 0,
-  },
-  authEmail: {
-    fontWeight: 600,
-    color: "#2EE6A8",
-  },
-  authLinks: {
-    display: "flex",
-    gap: 16,
-    marginTop: 24,
-  },
-  authLink: {
-    color: "#2EE6A8",
-    textDecoration: "none",
-    fontSize: 14,
-    padding: "8px 16px",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#2EE6A8",
-    borderRadius: 6,
-    transition: "all 0.2s",
-  },
-  authLinkHover: {
-    backgroundColor: "#2EE6A8",
-    color: "#1C222C",
-  },
-  logoutButton: {
-    backgroundColor: "transparent",
-    color: "#FF4B4B",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#FF4B4B",
-    borderRadius: 6,
-    padding: "6px 12px",
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "all 0.2s",
-    marginLeft: "auto",
-  },
-  logoutButtonHover: {
-    backgroundColor: "#FF4B4B",
-    color: "#1C222C",
-  },
+  return text.replace(
+    regex,
+    '<span style="background-color: #2EE6A8; color: #1C222C;">$1</span>'
+  );
 };
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
-  const [logoutHover, setLogoutHover] = React.useState(false);
-  const [loginHover, setLoginHover] = React.useState(false);
-  const [signupHover, setSignupHover] = React.useState(false);
   const [entries, setEntries] = React.useState([]);
   const [loadingEntries, setLoadingEntries] = React.useState(true);
 
@@ -177,7 +60,7 @@ export default function Home() {
           .from("entries")
           .select("*")
           .order("created_at", { ascending: false });
-        
+
         if (error) {
           console.error("Error fetching entries with created_at order:", error);
           // Fall back to ordering by id if created_at doesn't exist
@@ -185,7 +68,7 @@ export default function Home() {
             .from("entries")
             .select("*")
             .order("id", { ascending: false });
-          
+
           if (fallbackError) {
             console.error("Error fetching entries with id order:", fallbackError);
             setEntries([]);
@@ -249,117 +132,87 @@ export default function Home() {
   });
 
   return (
-    <main style={styles.wrap}>
-      <p style={styles.kicker}>KHMER LIVING ARCHIVE</p>
-      <h1 style={styles.title}>{collection.name}</h1>
-      <p style={styles.description}>{collection.description}</p>
+    <>
+      <Header loading={loading} user={user} onLogout={handleLogout} />
 
-      {/* Authentication Section */}
-      {!loading && (
-        user ? (
-          <div style={styles.authContainer}>
-            <p style={styles.authText}>
-              Welcome, <span style={styles.authEmail}>{user.email}</span>
-            </p>
-            <button
-              style={{
-                ...styles.logoutButton,
-                ...(logoutHover ? styles.logoutButtonHover : {})
-              }}
-              onClick={handleLogout}
-              onMouseEnter={() => setLogoutHover(true)}
-              onMouseLeave={() => setLogoutHover(false)}
-            >
-              Logout
-            </button>
-          </div>
-        ) : (
-          <div style={styles.authLinks}>
-            <a
-              href="/login"
-              style={{
-                ...styles.authLink,
-                ...(loginHover ? styles.authLinkHover : {})
-              }}
-              onMouseEnter={() => setLoginHover(true)}
-              onMouseLeave={() => setLoginHover(false)}
-            >
-              Log In
-            </a>
-            <a
-              href="/signup"
-              style={{
-                ...styles.authLink,
-                ...(signupHover ? styles.authLinkHover : {})
-              }}
-              onMouseEnter={() => setSignupHover(true)}
-              onMouseLeave={() => setSignupHover(false)}
-            >
-              Sign Up
-            </a>
-          </div>
-        )
-      )}
+      <main className="archive-main">
+        <section className="archive-hero">
+          <h1 className="archive-title">{collection.name}</h1>
+          <p className="archive-description">{collection.description}</p>
+        </section>
 
-      <input
-        style={{
-          padding: 12,
-          fontSize: 16,
-          borderWidth: 1,
-          borderStyle: "solid",
-          borderColor: "#2E3644",
-          borderRadius: 6,
-          width: "100%",
-          maxWidth: 550,
-          marginBottom: 16,
-          outline: "none",
-        }}
-        placeholder="Search entries..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      <p style={{ fontFamily: "'Courier New', monospace", fontSize: 14, color: "#2EE6A8", marginTop: 12 }}>
-        {loadingEntries ? "Loading..." : `${filteredEntries.length} entries`}
-      </p>
-
-      <div style={styles.entryRow}>
-        {loadingEntries ? (
-          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48, width: "100%" }}>
-            Loading entries...
-          </p>
-        ) : filteredEntries.length ? (
-          filteredEntries.map((entry) => (
-            <EntryCard
-              key={entry.id}
-              id={entry.id}
-              title={highlightMatch(entry.title_khmer || entry.titleKhmer || "", searchTerm)}
-              titleEnglish={highlightMatch(entry.title_english || entry.titleEnglish || "", searchTerm)}
-              description={highlightMatch(entry.description || "", searchTerm)}
-              contributor={entry.contributor || ""}
-              place={entry.place || ""}
+        <div className="archive-search-wrap">
+          <svg
+            className="archive-search-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              cx="10.5"
+              cy="9.8"
+              r="6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
             />
-          ))
-        ) : searchTerm ? (
-          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48, width: "100%" }}>
-            No results found for "{searchTerm}"
-          </p>
-        ) : (
-          <p style={{ textAlign: "center", color: "#97A1B3", marginTop: 48, width: "100%" }}>
-            No entries in the archive yet
-          </p>
-        )}
-      </div>
+            <path
+              d="M10.5 15 L10.5 20.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+          <input
+            className="archive-search"
+            type="text"
+            placeholder="Search entries..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search entries"
+          />
+        </div>
 
-      <p style={styles.count}>
-        {loadingEntries ? "Loading..." : `entries in the archive: ${entries.length}`}
-      </p>
+        <p className="archive-count">
+          {loadingEntries ? "Loading..." : `${filteredEntries.length} entries`}
+        </p>
 
-      <footer style={styles.footer}>
-        Built in ICT 340 — Vibe Coding, American University of Phnom Penh, Fall
-        2026. This archive is under construction all semester. Come back in
-        December.
-      </footer>
-    </main>
+        <div className="archive-grid">
+          {loadingEntries ? (
+            <p className="archive-status">Loading entries…</p>
+          ) : filteredEntries.length ? (
+            filteredEntries.map((entry) => (
+              <EntryCard
+                key={entry.id}
+                id={entry.id}
+                image={entry.image || ""}
+                imageAlt={entry.title_english || entry.title_khmer || "Entry photo"}
+                title={highlightMatch(entry.title_khmer || entry.titleKhmer || "", searchTerm)}
+                titleEnglish={highlightMatch(entry.title_english || entry.titleEnglish || "", searchTerm)}
+                description={highlightMatch(entry.description || "", searchTerm)}
+                contributor={entry.contributor || ""}
+                place={entry.place || ""}
+              />
+            ))
+          ) : searchTerm ? (
+            <p className="archive-status">
+              No results found for "{searchTerm}"
+            </p>
+          ) : (
+            <p className="archive-status">No entries in the archive yet</p>
+          )}
+        </div>
+
+        <p className="archive-count">
+          {loadingEntries ? "Loading..." : `entries in the archive: ${entries.length}`}
+        </p>
+
+        <footer className="archive-footer">
+          Built in ICT 340 — Vibe Coding, American University of Phnom Penh, Fall
+          2026. This archive is under construction all semester. Come back in
+          December.
+        </footer>
+      </main>
+    </>
   );
 }
