@@ -59,6 +59,7 @@ export default function ContributeForm({
   const [fieldErrors, setFieldErrors] = React.useState({});
   const [generalError, setGeneralError] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
+  const [successMessage, setSuccessMessage] = React.useState("");
 
   const update = (key) => (event) => {
     setValues((previous) => ({ ...previous, [key]: event.target.value }));
@@ -95,8 +96,15 @@ export default function ContributeForm({
       const result = await doSubmit({ values, imageFile });
       if (result.ok) {
         // The edit page returns a redirectTo so the user lands back on the
-        // entry; new entries go home, where the newest one is listed first.
-        router.push(result.redirectTo || "/");
+        // entry. New contributions don't have one: keep the contributor on
+        // this page and show the waiting-for-review message instead.
+        if (result.redirectTo) {
+          router.push(result.redirectTo);
+          return;
+        }
+        setSuccessMessage(
+          "Your contribution has been submitted and is waiting for review. It will appear in the public archive after approval."
+        );
         return;
       }
       setFieldErrors(result.fieldErrors || {});
@@ -119,74 +127,82 @@ export default function ContributeForm({
         </p>
       ) : null}
 
-      {TEXT_FIELDS.map(({ key, label, placeholder, textarea, khmer }) => (
-        <FormField key={key} id={key} label={label} error={error(key)}>
-          {textarea ? (
-            <textarea
-              id={key}
-              className="form-textarea"
-              rows={6}
-              placeholder={placeholder}
-              value={values[key]}
-              onChange={update(key)}
-              disabled={submitting}
-            />
-          ) : (
+      {successMessage ? (
+        <p className="form-success" role="status">
+          {successMessage}
+        </p>
+      ) : (
+        <>
+          {TEXT_FIELDS.map(({ key, label, placeholder, textarea, khmer }) => (
+            <FormField key={key} id={key} label={label} error={error(key)}>
+              {textarea ? (
+                <textarea
+                  id={key}
+                  className="form-textarea"
+                  rows={6}
+                  placeholder={placeholder}
+                  value={values[key]}
+                  onChange={update(key)}
+                  disabled={submitting}
+                />
+              ) : (
+                <input
+                  id={key}
+                  className={khmer ? "form-input form-input-khmer" : "form-input"}
+                  type="text"
+                  placeholder={placeholder}
+                  value={values[key]}
+                  onChange={update(key)}
+                  disabled={submitting}
+                />
+              )}
+            </FormField>
+          ))}
+
+          <FormField
+            id="image_file"
+            label="Photo"
+            hint="Pick one: upload a photo from your device, or paste a full http(s) link to a photo. Uploaded photos are stored in our photos bucket."
+            error={error("image")}
+          >
+            {currentImage && !imageFile ? (
+              <img
+                src={currentImage}
+                alt="Current photo"
+                className="form-current-photo"
+              />
+            ) : null}
+            {optionalPhoto ? (
+              <p className="form-hint">
+                Leave the photo as-is to keep the current one.
+              </p>
+            ) : null}
             <input
-              id={key}
-              className={khmer ? "form-input form-input-khmer" : "form-input"}
-              type="text"
-              placeholder={placeholder}
-              value={values[key]}
-              onChange={update(key)}
+              id="image_file"
+              className="form-file"
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={updateImageFile}
               disabled={submitting}
             />
-          )}
-        </FormField>
-      ))}
+            <p className="form-hint">or</p>
+            <input
+              id="image_url"
+              className="form-input"
+              type="text"
+              inputMode="url"
+              placeholder="https://example.com/photo.jpg"
+              value={values.image_url}
+              onChange={update("image_url")}
+              disabled={submitting}
+            />
+          </FormField>
 
-      <FormField
-        id="image_file"
-        label="Photo"
-        hint="Pick one: upload a photo from your device, or paste a full http(s) link to a photo. Uploaded photos are stored in our photos bucket."
-        error={error("image")}
-      >
-        {currentImage && !imageFile ? (
-          <img
-            src={currentImage}
-            alt="Current photo"
-            className="form-current-photo"
-          />
-        ) : null}
-        {optionalPhoto ? (
-          <p className="form-hint">
-            Leave the photo as-is to keep the current one.
-          </p>
-        ) : null}
-        <input
-          id="image_file"
-          className="form-file"
-          type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          onChange={updateImageFile}
-          disabled={submitting}
-        />
-        <p className="form-hint">or</p>
-        <input
-          id="image_url"
-          className="form-input"
-          type="text"
-          inputMode="url"
-          placeholder="https://example.com/photo.jpg"
-          value={values.image_url}
-          onChange={update("image_url")}
-          disabled={submitting}
-        />
-      </FormField>
-
-      <button type="submit" className="form-submit" disabled={submitting}>
-        {submitting ? submittingLabel : submitLabel}
-      </button>
+          <button type="submit" className="form-submit" disabled={submitting}>
+            {submitting ? submittingLabel : submitLabel}
+          </button>
+        </>
+      )}
     </form>
   );
 }

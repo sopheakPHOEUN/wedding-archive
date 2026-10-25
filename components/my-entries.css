@@ -1,0 +1,125 @@
+/* components/my-entries.css
+   Styles for the /my-entries page: the contributor's list of their own
+   entries with a bilingual review-status chip per row and, on returned
+   entries, an Edit action that sends the contributor to the edit form. The
+   page frame reuses the shared .contribute-* classes from contribute.css;
+   this file only adds the list rows, the status chips, and the edit action,
+   using the same palette as the rest of the app (#1C222C cards, #2E3644
+   borders, #E8EDF2 text, #2EE6A8 accent, #FF4B4B errors). */
+
+/* The always-visible Add New Entry action for signed-in contributors. It sits
+   below the page subtitle and stays on screen whether the list is empty or
+   already has pending/returned/published rows. */
+.my-entries-add {
+  margin-top: 32px;
+}
+
+.my-entries-list {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-entries-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background-color: #1c222c;
+  border: 1px solid #2e3644;
+  border-radius: 10px;
+}
+
+.my-entries-titles {
+  min-width: 0;
+}
+
+/* Khmer titles keep the Khmer font stack and roomy line height. */
+.my-entries-title {
+  margin: 0;
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #e8edf2;
+}
+
+.my-entries-title-english {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-style: italic;
+  color: #97a1b3;
+}
+
+/* The bilingual chip: the English word and the Khmer label both use the
+   Khmer font stack so Khmer diacritics render correctly. */
+.my-entries-status {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
+  border-radius: 999px;
+  text-align: center;
+}
+
+.my-entries-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* The Edit action appears only on returned entries and sends the owner to
+   the edit form; the database still owns the rules about who may update. */
+.my-entries-edit {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c222c;
+  background-color: #2ee6a8;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.my-entries-edit:hover {
+  background-color: #1cffb0;
+}
+
+.my-entries-status-pending {
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.my-entries-status-published {
+  color: #2ee6a8;
+  background-color: rgba(46, 230, 168, 0.12);
+  border: 1px solid rgba(46, 230, 168, 0.35);
+}
+
+.my-entries-status-returned {
+  color: #ff6b6b;
+  background-color: rgba(255, 75, 75, 0.12);
+  border: 1px solid rgba(255, 75, 75, 0.35);
+}
+
+@media (max-width: 720px) {
+  .my-entries-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .my-entries-actions {
+    align-items: flex-start;
+  }
+}

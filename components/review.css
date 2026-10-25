@@ -1,0 +1,150 @@
+/* components/review.css
+   Styles for the /admin/review page: the reviewer's queue of pending entries.
+   The page frame reuses the shared .contribute-* classes from contribute.css;
+   this file only adds the review queue cards, the photo, the submission
+   details, and the Publish / Return for Changes actions. Same palette as the
+   rest of the app (#1C222C cards, #2E3644 borders, #E8EDF2 text, #2EE6A8
+   accent, #FF4B4B errors). */
+
+.review-result-banner {
+  margin: 24px 0 0;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.review-result-success {
+  background-color: rgba(46, 230, 168, 0.1);
+  border: 1px solid rgba(46, 230, 168, 0.35);
+  color: #2ee6a8;
+}
+
+.review-result-error {
+  background-color: rgba(255, 75, 75, 0.1);
+  border: 1px solid rgba(255, 75, 75, 0.3);
+  color: #ff4b4b;
+}
+
+.review-list {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-item {
+  padding: 24px;
+  background-color: #1c222c;
+  border: 1px solid #2e3644;
+  border-radius: 10px;
+}
+
+.review-item-titles {
+  margin-bottom: 12px;
+}
+
+/* Khmer titles keep the Khmer font stack and a roomy line height. */
+.review-item-title {
+  margin: 0;
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #e8edf2;
+}
+
+.review-item-title-english {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-style: italic;
+  color: #97a1b3;
+}
+
+.review-pending-chip {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 12px;
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 999px;
+}
+
+.review-item-photo {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border: 1px solid #2e3644;
+  border-radius: 8px;
+  margin: 0 0 16px;
+}
+
+.review-item-description {
+  margin: 0;
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #e8edf2;
+}
+
+.review-item-meta {
+  margin: 14px 0 0;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+.review-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.review-button {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.review-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.review-button-publish {
+  background-color: #2ee6a8;
+  color: #1c222c;
+}
+
+.review-button-publish:hover:not(:disabled) {
+  background-color: #1cffb0;
+}
+
+.review-button-return {
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff4b4b;
+}
+
+.review-button-return:hover:not(:disabled) {
+  background-color: rgba(255, 75, 75, 0.12);
+}

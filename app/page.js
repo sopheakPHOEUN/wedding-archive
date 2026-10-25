@@ -30,6 +30,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [isReviewer, setIsReviewer] = React.useState(false);
   const [entries, setEntries] = React.useState([]);
   const [loadingEntries, setLoadingEntries] = React.useState(true);
 
@@ -38,7 +39,20 @@ export default function Home() {
       try {
         const supabase = createBrowserSupabaseClient();
         const { data } = await supabase.auth.getUser();
-        setUser(data?.user || null);
+        const sessionUser = data?.user || null;
+        setUser(sessionUser);
+        if (sessionUser) {
+          // The header only links to the review queue for reviewers. If the
+          // RPC errors we cannot prove reviewer status, so the link stays
+          // hidden (same fail-closed rule lib/entries.js uses).
+          const { data: reviewerData, error: reviewerError } =
+            await supabase.rpc("is_reviewer");
+          if (reviewerError) {
+            console.error("is_reviewer RPC error:", reviewerError);
+          } else if (reviewerData === true) {
+            setIsReviewer(true);
+          }
+        }
       } catch (error) {
         console.error("Error getting user:", error);
         setUser(null);
@@ -55,10 +69,14 @@ export default function Home() {
     async function fetchEntries() {
       try {
         const supabase = createBrowserSupabaseClient();
+        // Public pages only ever show published entries. The status filter is
+        // client-side so it applies to logged-in reviewers too, who may be able
+        // to read pending rows through RLS.
         // First try ordering by created_at (newest first)
         const { data, error } = await supabase
           .from("entries")
           .select("*")
+          .eq("status", "published")
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -67,6 +85,7 @@ export default function Home() {
           const { data: fallbackData, error: fallbackError } = await supabase
             .from("entries")
             .select("*")
+            .eq("status", "published")
             .order("id", { ascending: false });
 
           if (fallbackError) {
@@ -133,7 +152,12 @@ export default function Home() {
 
   return (
     <>
-      <Header loading={loading} user={user} onLogout={handleLogout} />
+      <Header
+        loading={loading}
+        user={user}
+        isReviewer={isReviewer}
+        onLogout={handleLogout}
+      />
 
       <main className="archive-main">
         <section className="archive-hero">

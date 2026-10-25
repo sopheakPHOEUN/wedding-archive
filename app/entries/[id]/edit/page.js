@@ -2,7 +2,11 @@
 // Uses the same form as /contribute (components/ContributeForm.js),
 // pre-filled with the entry's current values and the same validation rules.
 // Saving goes through lib/entries.js -> supabase-js. The photo is optional:
-// no new photo means the old one is kept.
+// no new photo means the old one is kept. Only the owner may use this page,
+// and only while the entry is waiting for review or was returned to them;
+// published entries are not editable here (only the review_entry RPC moves
+// an entry out of published). updateEntry also enforces ownership and sends
+// the entry back to 'pending' so it is reviewed again.
 "use client";
 
 import React from "react";
@@ -79,6 +83,13 @@ export default function EditEntryPage() {
   };
 
   const isOwner = Boolean(user && entry && entry.owner === user.id);
+  // Contributors may edit an entry while it waits for review or after the
+  // reviewer returned it. Published entries are not editable here; only the
+  // review_entry RPC changes a published entry.
+  const canEdit =
+    isOwner &&
+    entry &&
+    (entry.status === "pending" || entry.status === "returned");
 
   return (
     <main className="contribute-wrap">
@@ -115,6 +126,14 @@ export default function EditEntryPage() {
         <div className="contribute-card">
           <p className="contribute-gate-text">
             You can only edit your own entries.
+          </p>
+        </div>
+      ) : !canEdit ? (
+        <div className="contribute-card">
+          <p className="contribute-gate-text">
+            This entry is already published, so it can't be edited here. You
+            can edit entries that are waiting for review or were returned to
+            you.
           </p>
         </div>
       ) : (

@@ -128,6 +128,20 @@
   text-align: center;
 }
 
+/* Success banner shown after a contribution is submitted; it replaces the
+   form so the same entry can't be double-submitted. */
+.form-success {
+  margin: 0;
+  padding: 14px;
+  background-color: rgba(46, 230, 168, 0.1);
+  border: 1px solid rgba(46, 230, 168, 0.35);
+  border-radius: 6px;
+  color: #2ee6a8;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+}
+
 .form-submit {
   width: 100%;
   padding: 14px;
