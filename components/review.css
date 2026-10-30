@@ -1,5 +1,5 @@
 /* components/review.css
-   Styles for the /admin/review page: the reviewer's queue of pending entries.
+   Styles for the /review page: the reviewer's queue of pending entries.
    The page frame reuses the shared .contribute-* classes from contribute.css;
    this file only adds the review queue cards, the photo, the submission
    details, and the Publish / Return for Changes actions. Same palette as the

@@ -5,7 +5,7 @@
 // Logout button. Contributors add new entries from /my-entries, whose
 // "+ Add New Entry" link is the single clear path to the /contribute form.
 // Reviewers (confirmed via the is_reviewer RPC in app/page.js and passed in as
-// the isReviewer prop) also get a link to the /admin/review queue. Auth state,
+// the isReviewer prop) also get a link to the /review queue. Auth state,
 // reviewer status, and the logout handler are passed in from app/page.js, so
 // this component only renders. Styles live in components/archive.css.
 import "./archive.css";
@@ -22,7 +22,7 @@ export default function Header({ loading, user, isReviewer, onLogout }) {
         {!loading && user ? (
           <>
             {isReviewer ? (
-              <a className="archive-link" href="/admin/review">
+              <a className="archive-link" href="/review">
                 Review
               </a>
             ) : null}
