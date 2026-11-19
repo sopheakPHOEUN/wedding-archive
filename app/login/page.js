@@ -41,7 +41,7 @@ export default function LoginPage() {
   };
   
   return (
-    <AuthLayout title="Log in to your account">
+    <AuthLayout title="Log in to your account" brandImage="/hero.jpg">
       <AuthForm
         type="login"
         onSubmit={handleLogin}

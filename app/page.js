@@ -1,29 +1,54 @@
 // app/page.js - The archive home page.
 //
-// Structure: a sticky nav (components/Header.js) with the account actions on
-// the right, a hero (kicker + archive title + subtitle), the search bar, and
-// a responsive grid of entry cards. Entries are fetched from Supabase, search
-// filters them client-side, and matching text is highlighted in the accent
-// color. The fetching, filtering, and auth logic below is unchanged.
-// Styles live in components/archive.css.
+// Royal Khmer Heritage layout. The page reads like an exhibition: a layered
+// hero (Khmer eyebrow, Playfair title, gold ornament, a framed media panel
+// featuring the static hero image /hero.jpg or an engraved monogram), a stats
+// band, an editorial "About the collection" section built only from
+// collection.config.js, then the rituals gallery with its search bar.
+//
+// Search and highlighting run through lib/search.js (relevance tiers,
+// title-weighted ranking, NFC-aware Khmer matching) while fetching and auth
+// use Supabase as before. Styles live in components/archive.css and the
+// shared tokens in components/theme.css.
 "use client";
 
 import React from "react";
 import collection from "../collection.config.js";
 import Header from "../components/Header.js";
 import EntryCard from "../components/EntryCard.js";
+import Footer from "../components/Footer.js";
+import Ornament from "../components/Ornament.js";
+import Reveal from "../components/Reveal.js";
+import Lightbox from "../components/Lightbox.js";
+import AboutSlider from "../components/AboutSlider.js";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
+import { searchEntries, highlightText } from "../lib/search.js";
 import "../components/archive.css";
 
-const highlightMatch = (text, term) => {
-  if (!text) return "";
-  if (!term) return text;
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`(${escaped})`, "ig");
-  return text.replace(
-    regex,
-    '<span style="background-color: #2EE6A8; color: #1C222C;">$1</span>'
-  );
+// Render one search result into the shared card. The search engine reports
+// which terms matched in which field (lib/search.js), so highlighting only
+// marks words that genuinely occur in the title/description being shown, and
+// the matchLabel tells the visitor why this result appeared.
+const cardProps = (result) => {
+  const entry = result.entry;
+  const fieldTerms = result.fieldTerms || {};
+  return {
+    id: entry.id,
+    image: entry.image || "",
+    imageAlt: entry.title_english || entry.title_khmer || "Entry photo",
+    title: highlightText(
+      entry.title_khmer || entry.titleKhmer || "",
+      fieldTerms.title_khmer
+    ),
+    titleEnglish: highlightText(
+      entry.title_english || entry.titleEnglish || "",
+      fieldTerms.title_english
+    ),
+    description: highlightText(entry.description || "", fieldTerms.description),
+    contributor: entry.contributor || "",
+    place: entry.place || "",
+    matchLabel: result.label || "",
+  };
 };
 
 export default function Home() {
@@ -33,6 +58,11 @@ export default function Home() {
   const [isReviewer, setIsReviewer] = React.useState(false);
   const [entries, setEntries] = React.useState([]);
   const [loadingEntries, setLoadingEntries] = React.useState(true);
+  const [entriesError, setEntriesError] = React.useState("");
+  const [heroView, setHeroView] = React.useState(false);
+  // True when the static /hero.jpg fails to load, so the hero falls back to
+  // the engraved monogram instead of showing a broken image.
+  const [heroImageError, setHeroImageError] = React.useState(false);
 
   React.useEffect(() => {
     async function getUser() {
@@ -64,49 +94,76 @@ export default function Home() {
     getUser();
   }, []);
 
-  // Fetch entries from Supabase
-  React.useEffect(() => {
-    async function fetchEntries() {
-      try {
-        const supabase = createBrowserSupabaseClient();
-        // Public pages only ever show published entries. The status filter is
-        // client-side so it applies to logged-in reviewers too, who may be able
-        // to read pending rows through RLS.
-        // First try ordering by created_at (newest first)
-        const { data, error } = await supabase
+  // Fetch published entries from Supabase. If the request fails we record an
+  // actionable error (with a Retry handler) instead of silently showing an
+  // empty archive.
+  const loadEntries = React.useCallback(async () => {
+    setLoadingEntries(true);
+    setEntriesError("");
+    try {
+      const supabase = createBrowserSupabaseClient();
+      // Public pages only ever show published entries. The status filter is
+      // client-side so it applies to logged-in reviewers too, who may be able
+      // to read pending rows through RLS.
+      // First try ordering by created_at (newest first)
+      const { data, error } = await supabase
+        .from("entries")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching entries with created_at order:", error);
+        // Fall back to ordering by id if created_at doesn't exist
+        const { data: fallbackData, error: fallbackError } = await supabase
           .from("entries")
           .select("*")
           .eq("status", "published")
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          console.error("Error fetching entries with created_at order:", error);
-          // Fall back to ordering by id if created_at doesn't exist
-          const { data: fallbackData, error: fallbackError } = await supabase
-            .from("entries")
-            .select("*")
-            .eq("status", "published")
-            .order("id", { ascending: false });
-
-          if (fallbackError) {
-            console.error("Error fetching entries with id order:", fallbackError);
-            setEntries([]);
-          } else {
-            setEntries(fallbackData || []);
-          }
-        } else {
-          setEntries(data || []);
+          .order("id", { ascending: false });
+        if (fallbackError) {
+          console.error("Error fetching entries with id order:", fallbackError);
+          throw new Error(fallbackError.message);
         }
-      } catch (error) {
-        console.error("Error fetching entries:", error);
-        setEntries([]);
-      } finally {
-        setLoadingEntries(false);
+        setEntries(fallbackData || []);
+      } else {
+        setEntries(data || []);
       }
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+      setEntries([]);
+      setEntriesError(
+        "The archive couldn't be loaded right now. Please check your connection and try again."
+      );
+    } finally {
+      setLoadingEntries(false);
     }
-
-    fetchEntries();
   }, []);
+
+  React.useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
+
+  // Restore a search carried over from an entry page ("back to results") or a
+  // shared ?q= link, and remember the latest term for that round-trip.
+  React.useEffect(() => {
+    try {
+      const fromUrl = new URLSearchParams(window.location.search).get("q");
+      const restored =
+        fromUrl || window.sessionStorage.getItem("kla-search") || "";
+      if (restored) setSearchTerm(restored);
+    } catch (error) {
+      console.error("Error restoring search:", error);
+    }
+  }, []);
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    try {
+      window.sessionStorage.setItem("kla-search", value);
+    } catch (error) {
+      /* sessionStorage is best-effort; ignore quota/availability errors */
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -120,35 +177,37 @@ export default function Home() {
     }
   };
 
-  const filteredEntries = entries.filter((entry) => {
-    const term = searchTerm.toLowerCase().trim();
-    if (!term) return true;
+  // Search runs through lib/search.js: relevance tiers (exact phrase, all
+  // terms, partial), ranking that favors title matches, and per-field matched
+  // terms that drive both the highlighting and the "why this result" label.
+  const search = React.useMemo(
+    () => searchEntries(entries, searchTerm),
+    [entries, searchTerm]
+  );
+  const searchResults = search.results;
 
-    // Split search term into words for flexible partial-word matching
-    // e.g. "Goan Gomloh" → ["goan", "gomloh"]; single chars work too
-    const searchTerms = term.split(/\s+/);
+  // The framed hero panel shows the static hero image in /public/hero.jpg.
+  // To change it, overwrite that file with a new photo (keep the name
+  // hero.jpg). If the file is missing, it falls back to the styled monogram.
 
-    // Check if any search term appears as a substring in the given text
-    const matchesField = (text) => {
-      if (!text) return false;
-      const lowerText = text.toLowerCase();
-      return searchTerms.some((t) => lowerText.includes(t));
-    };
+  const firstResult = searchResults.length ? searchResults[0] : null;
+  const restResults =
+    searchResults.length > 1 ? searchResults.slice(1) : [];
 
-    // Handle both snake_case (from database) and camelCase (from data file) property names
-    const titleEnglish = entry.title_english || entry.titleEnglish || "";
-    const titleKhmer = entry.title_khmer || entry.titleKhmer || "";
-    const description = entry.description || "";
-    const contributor = entry.contributor || "";
-    const place = entry.place || "";
-
-    const matchesTitle = matchesField(titleEnglish) || matchesField(titleKhmer);
-    const matchesDescription = matchesField(description);
-    const matchesContributor = matchesField(contributor);
-    const matchesPlace = matchesField(place);
-
-    return matchesTitle || matchesDescription || matchesContributor || matchesPlace;
-  });
+  // Photos for the About slider: every published entry that has an image.
+  // entries are already ordered newest first, so the slide show follows the
+  // same order as the gallery below. Entries without a photo are skipped so
+  // no broken <img> can appear in the frame.
+  const aboutImages = React.useMemo(
+    () =>
+      (entries || [])
+        .map((entry) => ({
+          src: typeof entry.image === "string" ? entry.image : "",
+          alt: entry.title_khmer || entry.title_english || "Archive photo",
+        }))
+        .filter((img) => img.src.trim().length > 0),
+    [entries]
+  );
 
   return (
     <>
@@ -159,84 +218,262 @@ export default function Home() {
         onLogout={handleLogout}
       />
 
-      <main className="archive-main">
-        <section className="archive-hero">
-          <h1 className="archive-title">{collection.name}</h1>
-          <p className="archive-description">{collection.description}</p>
+      <main id="main">
+        {/* ============ Hero ============ */}
+        <section className="hero">
+          <div className="hero-pattern" aria-hidden="true" />
+          <div className="hero-shell">
+            <div className="hero-copy">
+              <Reveal>
+                <p className="hero-eyebrow" lang="km">
+                  អាពាហ៍ពិពាហ៍ប្រពៃណីខ្មែរ
+                </p>
+                <h1 className="hero-title">{collection.name}</h1>
+                <p className="hero-sub">{collection.description}</p>
+                <Ornament />
+                <a className="hero-cta" href="#collection">
+                  Explore the rituals
+                </a>
+              </Reveal>
+            </div>
+
+            <Reveal delay={140}>
+              <div className="hero-media">
+                <div className="hero-frame">
+                  {!heroImageError ? (
+                    <button
+                      type="button"
+                      className="hero-image-btn"
+                      onClick={() => setHeroView(true)}
+                      aria-label="View hero image full size"
+                    >
+                      <img
+                        className="hero-media-img"
+                        src="/hero.jpg"
+                        alt={collection.name}
+                        onError={() => setHeroImageError(true)}
+                      />
+                      <span className="hero-zoom">View full size</span>
+                    </button>
+                  ) : (
+                    <div className="hero-monogram">
+                      <span className="hero-monogram-glyph" lang="km">
+                        អ
+                      </span>
+                      <p className="hero-monogram-text" lang="km">
+                        អាពាហ៍ពិពាហ៍ប្រពៃណីខ្មែរ
+                      </p>
+                      <Ornament />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Reveal>
+          </div>
+          <div className="hero-scroll">Scroll</div>
         </section>
 
-        <div className="archive-search-wrap">
-          <svg
-            className="archive-search-icon"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle
-              cx="10.5"
-              cy="9.8"
-              r="6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <path
-              d="M10.5 15 L10.5 20.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-          <input
-            className="archive-search"
-            type="text"
-            placeholder="Search entries..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Search entries"
-          />
-        </div>
+        {/* ============ About the collection ============ */}
+        <section className="about">
+          <div className="about-shell">
+            <Reveal>
+              <AboutSlider images={aboutImages} />
+            </Reveal>
 
-        <p className="archive-count">
-          {loadingEntries ? "Loading..." : `${filteredEntries.length} entries`}
-        </p>
+            <Reveal delay={130}>
+              <div className="about-copy">
+                <p className="section-eyebrow">The Collection</p>
+                <h2 className="section-title">
+                  A record of living Khmer tradition
+                </h2>
+                <p className="section-lede">{collection.description}</p>
 
-        <div className="archive-grid">
-          {loadingEntries ? (
-            <p className="archive-status">Loading entries…</p>
-          ) : filteredEntries.length ? (
-            filteredEntries.map((entry) => (
-              <EntryCard
-                key={entry.id}
-                id={entry.id}
-                image={entry.image || ""}
-                imageAlt={entry.title_english || entry.title_khmer || "Entry photo"}
-                title={highlightMatch(entry.title_khmer || entry.titleKhmer || "", searchTerm)}
-                titleEnglish={highlightMatch(entry.title_english || entry.titleEnglish || "", searchTerm)}
-                description={highlightMatch(entry.description || "", searchTerm)}
-                contributor={entry.contributor || ""}
-                place={entry.place || ""}
+                <div className="about-note">
+                  <p className="about-note-label">
+                    Knowledge gathered from
+                  </p>
+                  <p className="about-note-text">{collection.source}</p>
+                  <p className="about-credit">
+                    Curated by{" "}
+                    <strong style={{ color: "#4a2525" }}>
+                      {collection.curator}
+                    </strong>
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ============ Rituals gallery ============ */}
+        <section id="collection" className="collection">
+          <div className="collection-head">
+            <Reveal>
+              <p className="section-eyebrow">The Rituals</p>
+              <h2 className="section-title">Explore the ceremony</h2>
+              <div className="khmer-rule" aria-hidden="true">
+                <span />
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal>
+            <form className="search-wrap" role="search" onSubmit={(e) => e.preventDefault()}>
+              <svg className="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle
+                  cx="10.5"
+                  cy="9.8"
+                  r="6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                />
+                <path
+                  d="M10.5 15 L10.5 20.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <input
+                className="search-input"
+                type="search"
+                placeholder="Search entries…"
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                aria-label="Search the archival entries"
               />
-            ))
-          ) : searchTerm ? (
-            <p className="archive-status">
-              No results found for "{searchTerm}"
+              {searchTerm ? (
+                <button
+                  type="button"
+                  className="search-clear"
+                  onClick={() => handleSearchChange("")}
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              ) : null}
+            </form>
+          </Reveal>
+
+          <Reveal>
+            <p className="collection-count">
+              {loadingEntries
+                ? "Loading the archive…"
+                : `${searchResults.length} entries`}
             </p>
+          </Reveal>
+
+          {entriesError ? (
+            <div className="collection-state" role="alert">
+              <p className="collection-state-title">
+                Couldn't load the archive
+              </p>
+              <p className="collection-state-text">{entriesError}</p>
+              <button
+                type="button"
+                className="collection-state-btn"
+                onClick={loadEntries}
+              >
+                Retry
+              </button>
+            </div>
+          ) : loadingEntries ? (
+            <>
+              {/* Loading skeleton keeps the layout stable and clearly
+                  communicates that content is on the way. */}
+              <div className="gallery-featured" aria-hidden="true">
+                <div className="skeleton skeleton-featured" />
+              </div>
+              <div className="gallery-grid" aria-hidden="true">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="skeleton skeleton-card" />
+                ))}
+              </div>
+            </>
+          ) : firstResult ? (
+            <>
+              <Reveal className="gallery-featured">
+                <EntryCard
+                  {...cardProps(firstResult)}
+                  num={1}
+                  featured
+                />
+              </Reveal>
+
+              {restResults.length ? (
+                <div className="gallery-grid">
+                  {restResults.map((result, index) => (
+                    <Reveal key={result.entry.id} delay={(index % 3) * 90}>
+                      <EntryCard
+                        {...cardProps(result)}
+                        num={index + 2}
+                      />
+                    </Reveal>
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : search.mode === "no-meaningful" ? (
+            <div className="collection-state">
+              <p className="collection-state-title">
+                Try a more specific search
+              </p>
+              <p className="collection-state-text">
+                That search used only common words such as &ldquo;the&rdquo;
+                or &ldquo;with&rdquo;, which don&rsquo;t narrow the results.
+                Try a ritual name, a place, or a special word like
+                &ldquo;ceremony&rdquo;.
+              </p>
+              <button
+                type="button"
+                className="collection-state-btn"
+                onClick={() => handleSearchChange("")}
+              >
+                Clear search
+              </button>
+            </div>
+          ) : searchTerm ? (
+            <div className="collection-state">
+              <p className="collection-state-title">
+                No results for "{searchTerm}"
+              </p>
+              <p className="collection-state-text">
+                Try a different word, or clear the search to browse the whole
+                archive.
+              </p>
+              <button
+                type="button"
+                className="collection-state-btn"
+                onClick={() => handleSearchChange("")}
+              >
+                Clear search
+              </button>
+            </div>
           ) : (
-            <p className="archive-status">No entries in the archive yet</p>
+            <div className="collection-state">
+              <p className="collection-state-title">
+                No entries in the archive yet
+              </p>
+              <p className="collection-state-text">
+                As rituals are reviewed and published, they will appear here.
+              </p>
+            </div>
           )}
-        </div>
-
-        <p className="archive-count">
-          {loadingEntries ? "Loading..." : `entries in the archive: ${entries.length}`}
-        </p>
-
-        <footer className="archive-footer">
-          Built in ICT 340 — Vibe Coding, American University of Phnom Penh, Fall
-          2026. This archive is under construction all semester. Come back in
-          December.
-        </footer>
+        </section>
       </main>
+
+      {!heroImageError ? (
+        <Lightbox
+          open={heroView}
+          image="/hero.jpg"
+          alt={collection.name}
+          onClose={() => setHeroView(false)}
+        />
+      ) : null}
+
+      <Footer />
     </>
   );
 }

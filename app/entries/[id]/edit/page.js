@@ -11,6 +11,8 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
+import Header from "../../../../components/Header.js";
+import Footer from "../../../../components/Footer.js";
 import { createBrowserSupabaseClient } from "../../../../lib/supabase-browser.js";
 import { updateEntry } from "../../../../lib/entries.js";
 import ContributeForm from "../../../../components/ContributeForm.js";
@@ -91,13 +93,26 @@ export default function EditEntryPage() {
     entry &&
     (entry.status === "pending" || entry.status === "returned");
 
+  const handleLogout = async () => {
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
-    <main className="contribute-wrap">
-      <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-      <h1 className="contribute-title">Edit Entry</h1>
-      <p className="contribute-subtitle">
-        Fix what needs fixing, then save your changes.
-      </p>
+    <>
+      <Header loading={loading} user={user} onLogout={handleLogout} />
+      <main id="main" className="contribute-wrap">
+        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
+        <h1 className="contribute-title">Edit Entry</h1>
+        <p className="contribute-subtitle">
+          Fix what needs fixing, then save your changes.
+        </p>
+        <div className="contribute-head-rule" aria-hidden="true" />
 
       {loading ? (
         <p className="contribute-status">Loading entry…</p>
@@ -155,9 +170,11 @@ export default function EditEntryPage() {
         </div>
       )}
 
-      <a className="contribute-home-link" href={entry ? `/entries/${id}` : "/"}>
-        ← Back to {entry ? "this entry" : "the archive"}
-      </a>
-    </main>
+        <a className="contribute-home-link" href={entry ? `/entries/${id}` : "/"}>
+          ← Back to {entry ? "this entry" : "the archive"}
+        </a>
+      </main>
+      <Footer />
+    </>
   );
 }

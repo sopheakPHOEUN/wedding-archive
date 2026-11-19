@@ -15,9 +15,12 @@
 // and only removes an entry from the list after the RPC came back error-free
 // with exactly true.
 import { createClient } from "../../lib/supabase.js";
+import Footer from "../../components/Footer.js";
+import SessionHeader from "../../components/SessionHeader.js";
 import ReviewQueue from "../../components/ReviewQueue.js";
 import "../../components/contribute.css";
 import "../../components/review.css";
+import "../../components/archive.css";
 
 // The page must re-render for each request: authorization depends on the
 // visitor's cookie, so it must never be prerendered into static HTML.
@@ -45,16 +48,20 @@ export default async function ReviewPage() {
   // Non-reviewers see nothing but the bilingual Access Denied message.
   if (!isReviewer) {
     return (
-      <main className="contribute-wrap">
-        <div className="contribute-card">
-          <p className="contribute-gate-text">
-            Access Denied — this page is for authorized reviewers only.
-          </p>
-          <p className="contribute-gate-text">
-            ការចូលប្រើត្រូវបានបដិសេធ — ទំព័រនេះសម្រាប់តែអ្នកពិនិត្យដែលមានការអនុញ្ញាតប៉ុណ្ណោះ។
-          </p>
-        </div>
-      </main>
+      <>
+        <SessionHeader />
+        <main id="main" className="contribute-wrap">
+          <div className="contribute-card">
+            <p className="contribute-gate-text">
+              Access Denied — this page is for authorized reviewers only.
+            </p>
+            <p className="contribute-gate-text">
+              ការចូលប្រើត្រូវបានបដិសេធ — ទំព័រនេះសម្រាប់តែអ្នកពិនិត្យដែលមានការអនុញ្ញាតប៉ុណ្ណោះ។
+            </p>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
@@ -80,19 +87,24 @@ export default async function ReviewPage() {
   }
 
   return (
-    <main className="contribute-wrap">
-      <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-      <h1 className="contribute-title">Review Queue</h1>
-      <p className="contribute-subtitle">
-        Entries waiting for review. Publishing adds them to the public archive;
-        returning sends them back to the contributor for changes.
-      </p>
+    <>
+      <SessionHeader />
+      <main id="main" className="contribute-wrap">
+        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
+        <h1 className="contribute-title">Review Queue</h1>
+        <p className="contribute-subtitle">
+          Entries waiting for review. Publishing adds them to the public archive;
+          returning sends them back to the contributor for changes.
+        </p>
+        <div className="contribute-head-rule" aria-hidden="true" />
 
-      <ReviewQueue entries={entries} loadError={loadError} />
+        <ReviewQueue entries={entries} loadError={loadError} />
 
-      <a className="contribute-home-link" href="/">
-        ← Back to the archive
-      </a>
-    </main>
+        <a className="contribute-home-link" href="/">
+          ← Back to the archive
+        </a>
+      </main>
+      <Footer />
+    </>
   );
 }

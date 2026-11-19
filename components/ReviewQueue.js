@@ -5,10 +5,16 @@
 // calls it with 'returned'. An entry leaves the list only when the RPC returns
 // no error AND exactly true; on any failure an error banner appears and the
 // entry stays put. The reviewer never sees who contributed an entry.
+//
+// Above the list, ReviewSort.js lets the reviewer flip between oldest-first
+// (ascending) and newest-first (descending) submission date order. That sort
+// is applied in the browser to the entries the server already fetched, so no
+// data is refetched and the Publish / Return flow is untouched.
 "use client";
 
 import React from "react";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
+import ReviewSort from "./ReviewSort.js";
 import "./contribute.css";
 import "./review.css";
 
@@ -29,6 +35,24 @@ export default function ReviewQueue({ entries, loadError }) {
   const [items, setItems] = React.useState(entries);
   const [reviewing, setReviewing] = React.useState(null); // { entryId, decision }
   const [lastResult, setLastResult] = React.useState(null); // { type, text }
+  // "asc" = submitted oldest first (matches how the server page orders the
+  // queue); "desc" = newest first. Only used to reorder the fetched rows.
+  const [sortOrder, setSortOrder] = React.useState("asc");
+
+  // Re-sort the already-fetched queue by submission date. Entries without a
+  // usable date sort as the oldest. The copy keeps items untouched, so the
+  // Publish / Return flow below continues to work on the same list.
+  const sortedItems = React.useMemo(() => {
+    const timeOf = (value) => {
+      if (!value) return 0;
+      const time = new Date(value).getTime();
+      return Number.isNaN(time) ? 0 : time;
+    };
+    const direction = sortOrder === "desc" ? -1 : 1;
+    return [...items].sort(
+      (a, b) => (timeOf(a.created_at) - timeOf(b.created_at)) * direction
+    );
+  }, [items, sortOrder]);
 
   const handleReview = async (entry, decision) => {
     if (reviewing) return;
@@ -109,8 +133,10 @@ export default function ReviewQueue({ entries, loadError }) {
           </p>
         </div>
       ) : (
-        <ul className="review-list">
-          {items.map((entry) => (
+        <>
+          <ReviewSort order={sortOrder} onChange={setSortOrder} />
+          <ul className="review-list">
+            {sortedItems.map((entry) => (
             <li key={entry.id} className="review-item">
               <div className="review-item-titles">
                 <p className="review-item-title">
@@ -171,7 +197,8 @@ export default function ReviewQueue({ entries, loadError }) {
               </div>
             </li>
           ))}
-        </ul>
+          </ul>
+        </>
       )}
     </>
   );

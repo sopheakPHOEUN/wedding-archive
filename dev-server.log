@@ -1,0 +1,20 @@
+
+> khmer-living-archive@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.23
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.56.1:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 1067ms (729 modules)
+ GET / 200 in 1667ms
+ ✓ Compiled in 211ms (295 modules)
+ ✓ Compiled in 85ms (295 modules)
+ ✓ Compiled in 988ms (309 modules)
+ ✓ Compiled in 280ms (295 modules)
+ ✓ Compiled in 95ms (295 modules)
+ ✓ Compiled in 299ms (309 modules)

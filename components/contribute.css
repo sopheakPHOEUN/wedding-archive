@@ -1,80 +1,118 @@
 /* components/contribute.css
-   Styles for the /contribute page and its form. A plain CSS file, as
-   allowed by AGENTS.md, so the form component stays small. Uses the same
-   palette as the rest of the app (#14181F page, #1C222C cards, #2EE6A8
-   accent, #FF4B4B errors). */
+   Royal Khmer Heritage styles for the /contribute page, its form, and the
+   shared page frame (kicker, title, subtitle, card, gate, home link) that the
+   /my-entries, /review, and /entries/[id]/edit pages reuse. Plain CSS, as
+   allowed by AGENTS.md, so the form components stay small. Palette and type
+   tokens come from components/theme.css. */
 
 .contribute-wrap {
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 80px 24px;
+  padding: clamp(48px, 7vw, 84px) 24px 64px;
+  background:
+    radial-gradient(640px 320px at 20% 0%, var(--gold-faint), transparent 60%),
+    var(--ivory-soft);
 }
 
 .contribute-kicker {
-  font-family: "Courier New", monospace;
-  color: #2ee6a8;
-  font-size: 14px;
-  letter-spacing: 1px;
   margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
 }
 
 .contribute-title {
-  font-size: 40px;
-  font-weight: 700;
   margin: 16px 0 12px;
-  line-height: 1.1;
-  color: #e8edf2;
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 5vw, 46px);
+  font-weight: 600;
+  line-height: 1.12;
+  color: var(--burgundy);
 }
 
 .contribute-subtitle {
-  font-size: 16px;
-  color: #97a1b3;
-  line-height: 1.6;
   margin: 0;
+  max-width: 56ch;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--brown-soft);
+}
+
+/* Gold hairline under the page head, like the archive's framed openings. */
+.contribute-head-rule {
+  height: 1px;
+  margin: 26px 0 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hairline), transparent);
 }
 
 .contribute-card {
-  margin-top: 32px;
-  padding: 24px;
-  background-color: #1c222c;
-  border: 1px solid #2e3644;
-  border-radius: 10px;
+  margin-top: 30px;
+  padding: clamp(24px, 4vw, 36px);
+  background-color: var(--white);
+  border: 1px solid var(--gold-hairline);
+  border-top: 3px solid var(--gold);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
 }
 
 .contribute-status {
   margin-top: 32px;
-  color: #97a1b3;
+  color: var(--brown-soft);
   text-align: center;
 }
 
 .form-field {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .form-label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #97a1b3;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.form-required {
+  color: var(--gold-deep);
+  margin-left: 2px;
+}
+
+/* Field spacing reads more comfortably with a touch more breathing room. */
+.form-field {
+  margin-bottom: 24px;
 }
 
 .form-input,
 .form-textarea {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  color: #e8edf2;
-  background-color: #1c222c;
-  border: 1px solid #2e3644;
-  border-radius: 6px;
+  padding: 14px 15px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--brown);
+  background-color: var(--ivory-soft);
+  border: 1px solid var(--gold-hairline);
+  border-radius: 10px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--brown-mute);
+  opacity: 1;
 }
 
 .form-input:focus,
 .form-textarea:focus {
-  border-color: #2ee6a8;
+  border-color: var(--gold);
+  background-color: var(--white);
+  box-shadow: 0 0 0 4px var(--gold-pale);
 }
 
 .form-input:disabled,
@@ -86,8 +124,7 @@
 /* Khmer script needs a Khmer font and generous line height. */
 .form-input-khmer,
 .form-textarea {
-  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
-    sans-serif;
+  font-family: var(--font-khmer);
   line-height: 1.7;
 }
 
@@ -97,33 +134,35 @@
 }
 
 .form-file {
-  color-scheme: dark;
+  width: 100%;
   font-size: 14px;
-  color: #97a1b3;
-  border: 1px dashed #2e3644;
-  border-radius: 6px;
-  padding: 10px;
+  color: var(--brown-soft);
+  border: 1px dashed var(--gold);
+  border-radius: 10px;
+  padding: 12px;
+  background-color: var(--ivory-soft);
+  cursor: pointer;
 }
 
 .form-hint {
-  margin: 6px 0 0;
-  font-size: 12px;
-  color: #5a6373;
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--brown-mute);
 }
 
 .form-field-error {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 13px;
-  color: #ff4b4b;
+  color: var(--error);
 }
 
 .form-error-banner {
-  margin: 0 0 16px;
-  padding: 12px;
-  background-color: rgba(255, 75, 75, 0.1);
-  border: 1px solid rgba(255, 75, 75, 0.3);
-  border-radius: 6px;
-  color: #ff4b4b;
+  margin: 0 0 18px;
+  padding: 13px;
+  background-color: rgba(163, 58, 58, 0.1);
+  border: 1px solid rgba(163, 58, 58, 0.4);
+  border-radius: 10px;
+  color: var(--error);
   font-size: 14px;
   text-align: center;
 }
@@ -133,10 +172,10 @@
 .form-success {
   margin: 0;
   padding: 14px;
-  background-color: rgba(46, 230, 168, 0.1);
-  border: 1px solid rgba(46, 230, 168, 0.35);
-  border-radius: 6px;
-  color: #2ee6a8;
+  background-color: var(--gold-pale);
+  border: 1px solid var(--gold-hairline);
+  border-radius: 10px;
+  color: var(--burgundy);
   font-size: 15px;
   line-height: 1.6;
   text-align: center;
@@ -144,71 +183,94 @@
 
 .form-submit {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 600;
-  background-color: #2ee6a8;
-  color: #1c222c;
-  border: none;
-  border-radius: 6px;
+  letter-spacing: 0.03em;
+  color: var(--ivory);
+  background: linear-gradient(145deg, var(--burgundy-soft) 0%, var(--burgundy) 55%, var(--burgundy-deep) 100%);
+  border: 1px solid rgba(184, 149, 85, 0.45);
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  box-shadow: 0 10px 24px rgba(84, 37, 43, 0.28);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .form-submit:hover:not(:disabled) {
-  background-color: #1cffb0;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(84, 37, 43, 0.36);
 }
 
 .form-submit:disabled {
-  background-color: #1a5c46;
-  color: #b8c4d1;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .contribute-gate-text {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   font-size: 15px;
-  color: #e8edf2;
-  line-height: 1.6;
+  line-height: 1.75;
+  color: var(--brown);
 }
 
 .contribute-gate-links {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .contribute-gate-link {
-  padding: 8px 16px;
+  padding: 12px 24px;
+  font-family: var(--font-sans);
   font-size: 14px;
-  color: #2ee6a8;
+  font-weight: 600;
+  color: var(--ivory);
   text-decoration: none;
-  border: 1px solid #2ee6a8;
-  border-radius: 6px;
-  transition: all 0.2s;
+  background: linear-gradient(145deg, var(--gold-soft) 0%, var(--gold) 60%, var(--gold-deep) 100%);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(154, 122, 68, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .contribute-gate-link:hover {
-  background-color: #2ee6a8;
-  color: #1c222c;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(154, 122, 68, 0.4);
 }
 
 .contribute-home-link {
   display: inline-block;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #2ee6a8;
+  margin-top: 28px;
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--burgundy);
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 .contribute-home-link:hover {
+  color: var(--gold-deep);
   text-decoration: underline;
 }
+
 /* The current photo shown on the edit form (pre-filled entry). */
 .form-current-photo {
   display: block;
   max-width: 100%;
-  max-height: 220px;
-  border: 1px solid #2e3644;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  max-height: 240px;
+  object-fit: cover;
+  border: 1px solid var(--gold-hairline);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 720px) {
+  .contribute-wrap {
+    padding: 44px 16px 48px;
+  }
+
+  .contribute-card {
+    padding: 22px;
+  }
 }

@@ -13,6 +13,8 @@
 "use client";
 
 import React from "react";
+import Header from "../../components/Header.js";
+import Footer from "../../components/Footer.js";
 import { createBrowserSupabaseClient } from "../../lib/supabase-browser.js";
 import "../../components/contribute.css";
 import "../../components/my-entries.css";
@@ -87,14 +89,27 @@ export default function MyEntriesPage() {
     };
   }, [user]);
 
+  const handleLogout = async () => {
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
-    <main className="contribute-wrap">
-      <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-      <h1 className="contribute-title">My Entries</h1>
-      <p className="contribute-subtitle">
-        The entries you contributed, and where each one stands in the review
-        process.
-      </p>
+    <>
+      <Header loading={loading} user={user} onLogout={handleLogout} />
+      <main id="main" className="contribute-wrap">
+        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
+        <h1 className="contribute-title">My Entries</h1>
+        <p className="contribute-subtitle">
+          The entries you contributed, and where each one stands in the review
+          process.
+        </p>
+        <div className="contribute-head-rule" aria-hidden="true" />
 
       {loading ? (
         <p className="contribute-status">Checking your session…</p>
@@ -180,9 +195,11 @@ export default function MyEntriesPage() {
         </>
       )}
 
-      <a className="contribute-home-link" href="/">
-        ← Back to the archive
-      </a>
-    </main>
+        <a className="contribute-home-link" href="/">
+          ← Back to the archive
+        </a>
+      </main>
+      <Footer />
+    </>
   );
 }

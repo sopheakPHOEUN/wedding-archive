@@ -86,6 +86,24 @@ export default function ContributeForm({
     return submitEntry({ supabase, values, imageFile });
   };
 
+  // Move keyboard/screen-reader focus to the first field that failed, so the
+  // visitor lands right where they need to fix something.
+  const focusFirstError = (errors) => {
+    const order = [
+      "title_khmer",
+      "title_english",
+      "description",
+      "contributor",
+      "place",
+      "image",
+    ];
+    const firstKey = order.find((key) => errors[key]);
+    if (!firstKey) return;
+    const targetId = firstKey === "image" ? "image_url" : firstKey;
+    const el = document.getElementById(targetId);
+    if (el) el.focus();
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (submitting) return;
@@ -107,7 +125,9 @@ export default function ContributeForm({
         );
         return;
       }
-      setFieldErrors(result.fieldErrors || {});
+      const errors = result.fieldErrors || {};
+      setFieldErrors(errors);
+      focusFirstError(errors);
       if (result.message) setGeneralError(result.message);
     } catch (error) {
       console.error("Entry form error:", error);
@@ -134,7 +154,13 @@ export default function ContributeForm({
       ) : (
         <>
           {TEXT_FIELDS.map(({ key, label, placeholder, textarea, khmer }) => (
-            <FormField key={key} id={key} label={label} error={error(key)}>
+            <FormField
+              key={key}
+              id={key}
+              label={label}
+              required
+              error={error(key)}
+            >
               {textarea ? (
                 <textarea
                   id={key}
@@ -162,6 +188,7 @@ export default function ContributeForm({
           <FormField
             id="image_file"
             label="Photo"
+            required={!optionalPhoto}
             hint="Pick one: upload a photo from your device, or paste a full http(s) link to a photo. Uploaded photos are stored in our photos bucket."
             error={error("image")}
           >
@@ -198,7 +225,12 @@ export default function ContributeForm({
             />
           </FormField>
 
-          <button type="submit" className="form-submit" disabled={submitting}>
+          <button
+            type="submit"
+            className="form-submit"
+            disabled={submitting}
+            aria-busy={submitting}
+          >
             {submitting ? submittingLabel : submitLabel}
           </button>
         </>

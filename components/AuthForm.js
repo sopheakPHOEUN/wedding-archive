@@ -1,83 +1,18 @@
-// AuthForm.js - Reusable authentication form component
+// AuthForm.js - Reusable login/sign-up form.
+// Class-based styling from components/auth.css, so the small focus/hover
+// states stay consistent with the rest of the archive's forms.
 "use client";
 
 import React from "react";
+import "./auth.css";
 
 export default function AuthForm({ type, onSubmit, error, isLoading }) {
   const isSignup = type === "signup";
-  const title = isSignup ? "Create an Account" : "Log In";
   const buttonText = isSignup ? "Sign Up" : "Log In";
-  const linkText = isSignup ? "Already have an account? Log in" : "Don't have an account? Sign up";
+  const linkText = isSignup
+    ? "Already have an account? Log in"
+    : "Don't have an account? Sign up";
   const linkHref = isSignup ? "/login" : "/signup";
-  
-  const [emailFocused, setEmailFocused] = React.useState(false);
-  const [passwordFocused, setPasswordFocused] = React.useState(false);
-  const [buttonHovered, setButtonHovered] = React.useState(false);
-
-  const styles = {
-    form: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 16,
-      width: "100%",
-    },
-    input: {
-      padding: 12,
-      fontSize: 16,
-      borderWidth: 1,
-      borderStyle: "solid",
-      borderColor: "#2E3644",
-      borderRadius: 6,
-      backgroundColor: "#1C222C",
-      color: "#E8EDF2",
-      outline: "none",
-      width: "100%",
-      transition: "border-color 0.2s",
-    },
-    inputFocus: {
-      borderColor: "#2EE6A8",
-    },
-    button: {
-      padding: 12,
-      fontSize: 16,
-      fontWeight: 600,
-      backgroundColor: "#2EE6A8",
-      color: "#1C222C",
-      border: "none",
-      borderRadius: 6,
-      cursor: "pointer",
-      transition: "background-color 0.2s",
-    },
-    buttonDisabled: {
-      backgroundColor: "#1A5C46",
-      cursor: "not-allowed",
-    },
-    buttonHover: {
-      backgroundColor: "#1CFFB0",
-    },
-    error: {
-      padding: 12,
-      backgroundColor: "rgba(255, 75, 75, 0.1)",
-      borderWidth: 1,
-      borderStyle: "solid",
-      borderColor: "rgba(255, 75, 75, 0.3)",
-      borderRadius: 6,
-      color: "#FF4B4B",
-      fontSize: 14,
-      textAlign: "center",
-    },
-    link: {
-      color: "#2EE6A8",
-      textDecoration: "none",
-      fontSize: 14,
-      textAlign: "center",
-      display: "block",
-      marginTop: 8,
-    },
-    linkHover: {
-      textDecoration: "underline",
-    },
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -88,63 +23,50 @@ export default function AuthForm({ type, onSubmit, error, isLoading }) {
   };
 
   return (
-    <form style={styles.form} onSubmit={handleSubmit}>
-      {error && (
-        <div style={styles.error}>
+    <form className="auth-form" onSubmit={handleSubmit}>
+      {error ? (
+        <div className="auth-error" role="alert">
           {error}
         </div>
-      )}
-      
+      ) : null}
+
       <div>
         <input
-          style={{
-            ...styles.input,
-            ...(emailFocused ? styles.inputFocus : {})
-          }}
+          className="auth-input"
           type="email"
           name="email"
           placeholder="Email"
+          aria-label="Email address"
+          autoComplete={isSignup ? "email" : "username"}
+          autoCapitalize="none"
+          spellCheck="false"
+          inputMode="email"
           required
           disabled={isLoading}
-          onFocus={() => setEmailFocused(true)}
-          onBlur={() => setEmailFocused(false)}
         />
       </div>
-      
+
       <div>
         <input
-          style={{
-            ...styles.input,
-            ...(passwordFocused ? styles.inputFocus : {})
-          }}
+          className="auth-input"
           type="password"
           name="password"
           placeholder="Password"
-          required
+          aria-label="Password"
+          autoComplete={isSignup ? "new-password" : "current-password"}
           minLength={6}
+          required
           disabled={isLoading}
-          onFocus={() => setPasswordFocused(true)}
-          onBlur={() => setPasswordFocused(false)}
         />
       </div>
-      
-      <button
-        type="submit"
-        style={{
-          ...styles.button,
-          ...(isLoading ? styles.buttonDisabled : {}),
-          ...(!isLoading && buttonHovered ? styles.buttonHover : {})
-        }}
-        disabled={isLoading}
-        onMouseEnter={() => !isLoading && setButtonHovered(true)}
-        onMouseLeave={() => !isLoading && setButtonHovered(false)}
-      >
-        {isLoading ? "Loading..." : buttonText}
+
+      <button type="submit" className="auth-button" disabled={isLoading}>
+        {isLoading ? "Loading…" : buttonText}
       </button>
-      
-      <a href={linkHref} style={styles.link}>
-        {linkText}
-      </a>
+
+      <p className="auth-switch">
+        <a href={linkHref}>{linkText}</a>
+      </p>
     </form>
   );
 }

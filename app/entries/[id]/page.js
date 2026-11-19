@@ -1,129 +1,20 @@
 // app/entries/[id]/page.js - One full archive entry.
-// Edit and Delete appear only when the logged-in user is the entry's owner.
-// Delete asks for confirmation first, then runs through lib/entries.js.
+// Presented as a museum plate: the photo (or an engraved placeholder) in a
+// gilded frame beside the bilingual title and the description. Edit and Delete
+// appear only when the logged-in user is the entry's owner. Delete asks for
+// confirmation first, then runs through lib/entries.js.
+// Styles live in components/detail.css.
 "use client";
 
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
+import Header from "../../../components/Header.js";
+import Footer from "../../../components/Footer.js";
+import Ornament from "../../../components/Ornament.js";
+import Lightbox from "../../../components/Lightbox.js";
 import { createBrowserSupabaseClient } from "../../../lib/supabase-browser.js";
 import { deleteEntry } from "../../../lib/entries.js";
-
-const styles = {
-  wrap: {
-    maxWidth: 720,
-    margin: "0 auto",
-    padding: "80px 24px",
-  },
-  kicker: {
-    fontFamily: "'Courier New', monospace",
-    color: "#2EE6A8",
-    fontSize: 14,
-    letterSpacing: 1,
-    margin: 0,
-  },
-  title: {
-    fontFamily:
-      "'Noto Sans Khmer', 'Khmer OS Battambang', 'Khmer UI', Arial, sans-serif",
-    fontSize: 40,
-    lineHeight: 1.4,
-    margin: "16px 0 4px",
-    color: "#E8EDF2",
-  },
-  titleEnglish: {
-    fontSize: 22,
-    color: "#97A1B3",
-    fontWeight: 600,
-    margin: "0 0 8px",
-  },
-  card: {
-    marginTop: 24,
-    padding: 24,
-    backgroundColor: "#1C222C",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#2E3644",
-    borderRadius: 10,
-  },
-  image: {
-    display: "block",
-    maxWidth: "100%",
-    maxHeight: 420,
-    objectFit: "contain",
-    borderRadius: 8,
-    margin: "0 auto 20px",
-  },
-  description: {
-    fontFamily:
-      "'Noto Sans Khmer', 'Khmer OS Battambang', 'Khmer UI', Arial, sans-serif",
-    fontSize: 17,
-    lineHeight: 1.8,
-    color: "#E8EDF2",
-    margin: 0,
-  },
-  meta: {
-    fontFamily: "'Courier New', monospace",
-    fontSize: 13,
-    lineHeight: 1.7,
-    color: "#97A1B3",
-    margin: "20px 0 0",
-  },
-  actions: {
-    display: "flex",
-    gap: 12,
-    marginTop: 24,
-  },
-  editLink: {
-    padding: "10px 18px",
-    fontSize: 14,
-    fontWeight: 600,
-    color: "#1C222C",
-    backgroundColor: "#2EE6A8",
-    border: "none",
-    borderRadius: 6,
-    textDecoration: "none",
-    cursor: "pointer",
-  },
-  deleteButton: {
-    padding: "10px 18px",
-    fontSize: 14,
-    fontWeight: 600,
-    color: "#FF4B4B",
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#FF4B4B",
-    borderRadius: 6,
-    cursor: "pointer",
-  },
-  deleteButtonDisabled: {
-    opacity: 0.6,
-    cursor: "not-allowed",
-  },
-  message: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: "rgba(255, 75, 75, 0.1)",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "rgba(255, 75, 75, 0.3)",
-    borderRadius: 6,
-    color: "#FF4B4B",
-    fontSize: 14,
-    textAlign: "center",
-  },
-  status: {
-    marginTop: 32,
-    color: "#97A1B3",
-    textAlign: "center",
-  },
-  backLink: {
-    display: "inline-block",
-    marginTop: 24,
-    fontSize: 14,
-    color: "#2EE6A8",
-    textDecoration: "none",
-  },
-};
+import "../../../components/detail.css";
 
 export default function EntryDetailPage() {
   const params = useParams();
@@ -133,8 +24,28 @@ export default function EntryDetailPage() {
   const [entry, setEntry] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
-  const [message, setMessage] = React.useState("");
   const [deleting, setDeleting] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [viewImage, setViewImage] = React.useState(false);
+  // If the visitor arrived from a search, guide them back to it.
+  const [backInfo, setBackInfo] = React.useState({
+    href: "/",
+    label: "Back to the archive",
+  });
+
+  React.useEffect(() => {
+    try {
+      const saved = window.sessionStorage.getItem("kla-search");
+      if (saved) {
+        setBackInfo({
+          href: `/?q=${encodeURIComponent(saved)}#collection`,
+          label: "Back to results",
+        });
+      }
+    } catch (error) {
+      /* sessionStorage is best-effort */
+    }
+  }, []);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -177,7 +88,19 @@ export default function EntryDetailPage() {
     };
   }, [id]);
 
+  const handleLogout = async () => {
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   const isOwner = Boolean(user && entry && entry.owner === user.id);
+  const hasImage =
+    typeof entry?.image === "string" && entry.image.trim().length > 0;
 
   const handleDelete = async () => {
     if (deleting) return;
@@ -201,69 +124,131 @@ export default function EntryDetailPage() {
   };
 
   return (
-    <main style={styles.wrap}>
-      <p style={styles.kicker}>KHMER LIVING ARCHIVE</p>
-
-      {loading ? (
-        <p style={styles.status}>Loading entry…</p>
-      ) : !entry ? (
-        <div style={styles.card}>
-          <p style={styles.description}>
-            We couldn't find that entry. It may have been deleted.
-          </p>
+    <>
+      <Header loading={loading} user={user} onLogout={handleLogout} />
+      <main id="main" className="detail-wrap">
+        <div className="detail-back-bar">
+          <a className="detail-back" href={backInfo.href}>
+            ← {backInfo.label}
+          </a>
         </div>
-      ) : (
-        <>
-          <h1 style={styles.title}>{entry.title_khmer || entry.titleKhmer || ""}</h1>
-          <p style={styles.titleEnglish}>
-            {entry.title_english || entry.titleEnglish || ""}
-          </p>
+        <p className="detail-kicker">KHMER LIVING ARCHIVE</p>
 
-          <div style={styles.card}>
-            {entry.image ? (
-              <img
-                src={entry.image}
-                alt={entry.title_english || entry.title_khmer || "Entry photo"}
-                style={styles.image}
-              />
-            ) : null}
-            <p style={styles.description}>{entry.description || ""}</p>
-            <p style={styles.meta}>
-              CONTRIBUTED BY {(entry.contributor || "").toUpperCase()} —{" "}
-              {entry.place || ""}
+        {loading ? (
+          <p className="detail-status">Loading entry…</p>
+        ) : !entry ? (
+          <div className="detail-card">
+            <p
+              className="detail-description"
+              style={{
+                gridColumn: "1 / -1",
+                color: "var(--brown-soft)",
+              }}
+            >
+              We couldn't find that entry. It may have been deleted.
             </p>
           </div>
-
-          {isOwner ? (
-            <div style={styles.actions}>
-              <a href={`/entries/${id}/edit`} style={styles.editLink}>
-                Edit
-              </a>
-              <button
-                type="button"
-                style={{
-                  ...styles.deleteButton,
-                  ...(deleting ? styles.deleteButtonDisabled : {}),
-                }}
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting…" : "Delete"}
-              </button>
-            </div>
-          ) : null}
-
-          {message ? (
-            <p style={styles.message} role="alert">
-              {message}
+        ) : (
+          <>
+            <h1 className="detail-title">
+              {entry.title_khmer || entry.titleKhmer || ""}
+            </h1>
+            <p className="detail-title-english">
+              {entry.title_english || entry.titleEnglish || ""}
             </p>
-          ) : null}
-        </>
-      )}
+            <div className="detail-rule" aria-hidden="true" />
 
-      <a href="/" style={styles.backLink}>
-        ← Back to the archive
-      </a>
-    </main>
+            <div className="detail-card">
+              <div className="detail-figure">
+                {hasImage ? (
+                  <button
+                    type="button"
+                    className="detail-image-btn"
+                    onClick={() => setViewImage(true)}
+                    aria-label={`View photo full size`}
+                  >
+                    <img
+                      className="detail-image"
+                      src={entry.image}
+                      alt={
+                        entry.title_english ||
+                        entry.title_khmer ||
+                        "Entry photo"
+                      }
+                    />
+                    <span className="detail-zoom">View full size</span>
+                  </button>
+                ) : (
+                  <div className="detail-placeholder" aria-hidden="true">
+                    ◆
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <p className="detail-description">{entry.description || ""}</p>
+                <Ornament />
+                <dl className="detail-meta">
+                  <div className="detail-meta-row">
+                    <dt>Contributor</dt>
+                    <dd>{entry.contributor || "Not provided"}</dd>
+                  </div>
+                  <div className="detail-meta-row">
+                    <dt>Place</dt>
+                    <dd>{entry.place || "Not provided"}</dd>
+                  </div>
+                </dl>
+
+                {isOwner ? (
+                  <div className="detail-actions">
+                    <a className="detail-edit" href={`/entries/${id}/edit`}>
+                      Edit entry
+                    </a>
+                    <button
+                      type="button"
+                      className="detail-delete"
+                      onClick={handleDelete}
+                      disabled={deleting}
+                    >
+                      {deleting ? "Deleting…" : "Delete"}
+                    </button>
+                    <p className="detail-owner-note">
+                      You contributed this entry. Edits send it back to the
+                      review queue.
+                    </p>
+                  </div>
+                ) : null}
+
+                {message ? (
+                  <p className="detail-message" role="alert">
+                    {message}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </>
+        )}
+
+        <a className="detail-back detail-back-bottom" href={backInfo.href}>
+          ← {backInfo.label}
+        </a>
+      </main>
+
+      {hasImage ? (
+        <Lightbox
+          open={viewImage}
+          image={entry.image}
+          alt={entry.title_english || entry.title_khmer || "Entry photo"}
+          caption={
+            entry.title_khmer
+              ? `${entry.title_khmer} — ${entry.title_english || ""}`
+              : entry.title_english || ""
+          }
+          onClose={() => setViewImage(false)}
+        />
+      ) : null}
+
+      <Footer />
+    </>
   );
 }

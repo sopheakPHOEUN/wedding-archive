@@ -1,0 +1,357 @@
+/* components/detail.css
+   Royal Khmer Heritage styles for the single-entry exhibition page
+   (/entries/[id]). A framed photograph like a museum plate sits beside the
+   bilingual title and description; ownership actions (Edit / Delete) appear
+   only to the contributor. Palette and type tokens come from theme.css. */
+
+.detail-wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 44px) 24px 52px;
+  background:
+    radial-gradient(640px 320px at 90% 0%, var(--gold-faint), transparent 60%),
+    var(--ivory-soft);
+}
+
+.detail-kicker {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.detail-title {
+  margin: 14px 0 6px;
+  font-family: var(--font-khmer);
+  font-size: clamp(24px, 3.3vw, 36px);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--burgundy);
+}
+
+.detail-title-english {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(16px, 1.9vw, 20px);
+  font-weight: 500;
+  font-style: italic;
+  color: var(--brown-soft);
+}
+
+.detail-rule {
+  height: 1px;
+  margin: 18px 0 26px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hairline), transparent);
+}
+
+/* The exhibition layout: image plate and text track side by side. */
+.detail-card {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+
+.detail-figure {
+  position: relative;
+  padding: 10px;
+  background: linear-gradient(145deg, var(--white), var(--ivory));
+  border: 1px solid var(--gold);
+  outline: 1px solid var(--gold-hairline);
+  outline-offset: 5px;
+  box-shadow: var(--shadow-card);
+}
+
+/* Gilded corner brackets. */
+.detail-figure::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 22px;
+  height: 22px;
+  border-top: 3px solid var(--gold);
+  border-right: 3px solid var(--gold);
+}
+
+.detail-figure::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: -1px;
+  width: 22px;
+  height: 22px;
+  border-bottom: 3px solid var(--gold);
+  border-left: 3px solid var(--gold);
+}
+
+.detail-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+/* The photograph is a button that opens the lightbox at full size. */
+.detail-image-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  text-align: center;
+}
+
+.detail-image-btn:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.detail-zoom {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+/* When the entry has no photo, an engraved placeholder keeps the plate. */
+.detail-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54px;
+  color: var(--gold-deep);
+  background:
+    var(--pattern-lattice),
+    linear-gradient(140deg, var(--ivory-deep) 0%, var(--ivory-soft) 100%);
+}
+
+.detail-description {
+  margin: 0;
+  font-family: var(--font-khmer);
+  font-size: clamp(15px, 1.6vw, 17px);
+  line-height: 1.8;
+  color: var(--brown);
+}
+
+/* Bilingual reading: a labelled definition list keeps each fact scannable. */
+.detail-meta {
+  margin: 20px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--gold-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.detail-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.detail-meta-row dt {
+  flex: 0 0 108px;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.detail-meta-row dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  color: var(--burgundy);
+  line-height: 1.5;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Short owner hint under the actions, full width so it never crowds them. */
+.detail-owner-note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--brown-mute);
+}
+
+.detail-back-bar {
+  margin-bottom: 18px;
+}
+
+.detail-back-bar .detail-back {
+  margin-top: 0;
+  font-size: 13.5px;
+}
+
+.detail-edit {
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ivory);
+  background: linear-gradient(145deg, var(--burgundy-soft) 0%, var(--burgundy) 55%, var(--burgundy-deep) 100%);
+  border: 1px solid rgba(184, 149, 85, 0.45);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(84, 37, 43, 0.28);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.detail-edit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(84, 37, 43, 0.34);
+}
+
+.detail-delete {
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--error);
+  background-color: transparent;
+  border: 1px solid rgba(163, 58, 58, 0.5);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.detail-delete:hover {
+  background-color: rgba(163, 58, 58, 0.08);
+}
+
+.detail-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.detail-message {
+  margin-top: 16px;
+  padding: 13px;
+  background-color: rgba(163, 58, 58, 0.1);
+  border: 1px solid rgba(163, 58, 58, 0.4);
+  border-radius: 10px;
+  color: var(--error);
+  font-size: 14px;
+  text-align: center;
+}
+
+.detail-status {
+  margin-top: 24px;
+  color: var(--brown-soft);
+  text-align: center;
+}
+
+.detail-back {
+  display: inline-block;
+  margin-top: 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--burgundy);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.detail-back:hover {
+  color: var(--gold-deep);
+  text-decoration: underline;
+}
+
+/* ================= Lightbox ================= */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(42, 33, 28, 0.9);
+}
+
+.lightbox-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: min(1100px, 92vw);
+  max-height: 88vh;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 76vh;
+  object-fit: contain;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-caption {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  color: var(--ivory);
+  line-height: 1.6;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--burgundy);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transition: background-color 0.2s;
+}
+
+.lightbox-close:hover {
+  background: var(--gold-soft);
+}
+
+@media (max-width: 860px) {
+  .detail-card {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-meta-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox {
+    animation: none;
+  }
+}

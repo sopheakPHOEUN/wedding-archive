@@ -1,37 +1,59 @@
 /* components/my-entries.css
-   Styles for the /my-entries page: the contributor's list of their own
-   entries with a bilingual review-status chip per row and, on returned
-   entries, an Edit action that sends the contributor to the edit form. The
-   page frame reuses the shared .contribute-* classes from contribute.css;
-   this file only adds the list rows, the status chips, and the edit action,
-   using the same palette as the rest of the app (#1C222C cards, #2E3644
-   borders, #E8EDF2 text, #2EE6A8 accent, #FF4B4B errors). */
+   Royal Khmer Heritage styles for the /my-entries page: the contributor's own
+   entries as framed rows with a bilingual review-status chip and, on returned
+   entries, an Edit action. The page frame reuses the shared .contribute-*
+   classes from contribute.css; this file only styles the list, chips, and
+   actions. Palette tokens come from components/theme.css. */
 
-/* The always-visible Add New Entry action for signed-in contributors. It sits
-   below the page subtitle and stays on screen whether the list is empty or
-   already has pending/returned/published rows. */
 .my-entries-add {
-  margin-top: 32px;
+  margin-top: 30px;
 }
 
 .my-entries-list {
   list-style: none;
-  margin: 32px 0 0;
+  margin: 30px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .my-entries-item {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 22px;
-  background-color: #1c222c;
-  border: 1px solid #2e3644;
-  border-radius: 10px;
+  padding: 22px 26px;
+  background-color: var(--white);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--card-radius);
+  box-shadow: 0 3px 14px rgba(53, 42, 36, 0.06);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* A gold tick across the top of each row, like a gallery label. */
+.my-entries-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.my-entries-item:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.my-entries-item:hover::before {
+  transform: scaleX(1);
 }
 
 .my-entries-titles {
@@ -41,28 +63,27 @@
 /* Khmer titles keep the Khmer font stack and roomy line height. */
 .my-entries-title {
   margin: 0;
-  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
-    sans-serif;
+  font-family: var(--font-khmer);
   font-size: 18px;
   font-weight: 600;
-  line-height: 1.5;
-  color: #e8edf2;
+  line-height: 1.55;
+  color: var(--burgundy);
 }
 
 .my-entries-title-english {
-  margin: 2px 0 0;
-  font-size: 13px;
+  margin: 4px 0 0;
+  font-family: var(--font-serif);
+  font-size: 14px;
   font-style: italic;
-  color: #97a1b3;
+  color: var(--brown-soft);
 }
 
 /* The bilingual chip: the English word and the Khmer label both use the
    Khmer font stack so Khmer diacritics render correctly. */
 .my-entries-status {
   flex-shrink: 0;
-  padding: 6px 12px;
-  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
-    sans-serif;
+  padding: 7px 14px;
+  font-family: var(--font-khmer);
   font-size: 12px;
   line-height: 1.5;
   font-weight: 600;
@@ -78,39 +99,42 @@
   gap: 10px;
 }
 
-/* The Edit action appears only on returned entries and sends the owner to
-   the edit form; the database still owns the rules about who may update. */
 .my-entries-edit {
-  padding: 6px 14px;
+  padding: 8px 18px;
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
-  color: #1c222c;
-  background-color: #2ee6a8;
-  border-radius: 6px;
+  color: var(--ivory);
+  background: linear-gradient(145deg, var(--burgundy-soft) 0%, var(--burgundy) 55%, var(--burgundy-deep) 100%);
+  border-radius: 999px;
   text-decoration: none;
-  transition: background-color 0.2s;
+  box-shadow: 0 6px 16px rgba(84, 37, 43, 0.24);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .my-entries-edit:hover {
-  background-color: #1cffb0;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(84, 37, 43, 0.3);
 }
 
+/* Status chips stay inside the palette: gold for waiting, burgundy for
+   published, soft red for returned. */
 .my-entries-status-pending {
-  color: #fbbf24;
-  background-color: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: var(--gold-deep);
+  background-color: rgba(184, 149, 85, 0.12);
+  border: 1px solid rgba(184, 149, 85, 0.45);
 }
 
 .my-entries-status-published {
-  color: #2ee6a8;
-  background-color: rgba(46, 230, 168, 0.12);
-  border: 1px solid rgba(46, 230, 168, 0.35);
+  color: var(--burgundy);
+  background-color: rgba(84, 37, 43, 0.08);
+  border: 1px solid rgba(84, 37, 43, 0.3);
 }
 
 .my-entries-status-returned {
-  color: #ff6b6b;
-  background-color: rgba(255, 75, 75, 0.12);
-  border: 1px solid rgba(255, 75, 75, 0.35);
+  color: var(--error);
+  background-color: rgba(163, 58, 58, 0.1);
+  border: 1px solid rgba(163, 58, 58, 0.4);
 }
 
 @media (max-width: 720px) {

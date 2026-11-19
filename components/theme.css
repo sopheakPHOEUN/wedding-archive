@@ -1,0 +1,263 @@
+/* components/theme.css
+   Shared design tokens for the "Royal Khmer Elegance" redesign, imported once
+   by app/layout.js so the CSS variables below are available to every other
+   stylesheet on every page (archive.css, contribute.css, my-entries.css,
+   review.css) as well as the inline-style pages.
+
+   Palette
+     Deep Burgundy  #54252B  — primary: header, buttons, Khmer titles
+     Antique Gold   #B89555  — accents: ornament, hairlines, highlights
+     Ivory          #F5EFE3  — page background, on-burgundy text
+     Dark Brown     #352A24  — body text, footer band
+     White          #FFFFFF  — cards, inputs
+
+   Typography
+     Playfair Display   — English headings/serif accents
+     Cormorant Garamond — italic English subtitles and "View entry" links
+     Inter              — English body and UI
+     Kantumruy Pro      — Khmer display titles (archive cards)
+     Noto Sans Khmer    — Khmer body text, and last in every stack so Khmer
+                          glyphs always render beautifully */
+
+:root {
+  /* Palette */
+  --burgundy: #54252b;
+  --burgundy-deep: #432024;
+  --gold: #b89555;
+  --gold-light: #cdaa71;
+  --gold-deep: #9a7a44;
+  --gold-pale: rgba(184, 149, 85, 0.18);
+  --gold-hairline: rgba(154, 122, 68, 0.35);
+  --ivory: #f5efe3;
+  --ivory-deep: #eee4cf;
+  --ivory-wash: #fbf7ee;
+  --brown: #352a24;
+  --brown-soft: #5f5145;
+  /* Darker muted brown for small letterspaced labels — improves contrast on
+     ivory while staying clearly "muted" next to body text. */
+  --brown-mute: #72634e;
+  --white: #ffffff;
+  --error: #a33a3a;
+  --focus-ring: 2px solid var(--gold);
+
+  /* Type
+     --font-serif        Playfair Display — English headings / brand serif
+     --font-serif-subtitle  Cormorant Garamond — italic card subtitles & links
+     --font-sans         Inter + Noto Sans Khmer fallback — body/UI (English
+                         and Khmer descriptions read through this stack)
+     --font-khmer        Noto Sans Khmer — Khmer body/UI text
+     --font-khmer-display   Kantumruy Pro — Khmer display titles (cards) */
+  --font-serif: "Playfair Display", "Noto Sans Khmer", Georgia, "Times New Roman",
+    serif;
+  --font-serif-subtitle: "Cormorant Garamond", "Noto Sans Khmer", Georgia, serif;
+  --font-sans: "Inter", "Noto Sans Khmer", Arial, sans-serif;
+  --font-khmer: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
+    sans-serif;
+  --font-khmer-display: "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS Battambang",
+    "Khmer UI", Arial, sans-serif;
+
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --shadow-card: 0 10px 30px rgba(53, 42, 36, 0.1);
+  --shadow-lift: 0 18px 40px rgba(53, 42, 36, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--gold);
+  color: var(--ivory);
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Skip-to-content: first styled element for keyboard users, hidden until it
+   receives focus. Added in the root layout so every page benefits. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 12px;
+  z-index: 100;
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--burgundy);
+  background: var(--gold);
+  border-radius: 0 0 10px 10px;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  color: var(--white);
+  outline: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* The gold ornament divider used on the hero and section headings. It inherits
+   its color from the surrounding text color via currentColor and sizes itself
+   so it stays elegant on any screen width. */
+.royal-ornament {
+  display: block;
+  width: min(200px, 62vw);
+  height: auto;
+  margin: 0 auto;
+  color: inherit;
+}
+
+/* ============================================================
+   Royal Khmer Heritage — extended tokens & shared utilities.
+   Keeps every existing variable, adds the nuances the layered,
+   editorial layout needs, plus the cross-page building blocks
+   (shell, eyebrows, hairlines, reveal motion, Khmer lattice).
+   ============================================================ */
+
+:root {
+  /* Extra palette nuances (all descend from the five core tones). */
+  --gold-soft: #dcc08c;
+  --gold-ghost: rgba(184, 149, 85, 0.12);
+  --gold-faint: rgba(184, 149, 85, 0.06);
+  --burgundy-soft: #6b3138;
+  --ivory-soft: #faf5ea;
+  --brown-ink: #2a211c;
+  --white-wash: rgba(255, 255, 255, 0.5);
+
+  /* Layout rhythm. */
+  --shell: 1180px;
+  --shell-narrow: 860px;
+  --section-pad: clamp(76px, 10vw, 128px);
+  --card-radius: 18px;
+
+  /* Type scale (fluid, so it scales gracefully on every screen). */
+  --fs-hero: clamp(42px, 8vw, 82px);
+  --fs-section: clamp(30px, 4.4vw, 46px);
+  --fs-lede: clamp(17px, 2vw, 20px);
+
+  /* Khmer-inspired subtle lattice, drawn purely with gradients. */
+  --pattern-lattice:
+    repeating-linear-gradient(45deg, rgba(184, 149, 85, 0.045) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(-45deg, rgba(184, 149, 85, 0.045) 0 1px, transparent 1px 14px);
+}
+
+/* Shared page container. */
+.site-shell {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.site-shell-narrow {
+  max-width: var(--shell-narrow);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Small uppercase kicker with a gold tick, used above headings. */
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.section-eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+
+/* Gold hairline divider with a central diamond, echoing carved borders. */
+.khmer-rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 26px 0;
+}
+
+.khmer-rule::before,
+.khmer-rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.khmer-rule span {
+  width: 7px;
+  height: 7px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+/* Section titles (Playfair serif) and lede copy. */
+.section-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-section);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--burgundy);
+}
+
+.section-lede {
+  margin: 18px 0 0;
+  font-size: var(--fs-lede);
+  line-height: 1.75;
+  color: var(--brown-soft);
+}
+
+/* Scroll-reveal: a small wrapper fades + lifts into place once it enters the
+   viewport. Motion is added via JS (components/Reveal.js) and always honours
+   prefers-reduced-motion so tasteful interactions never distract. */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

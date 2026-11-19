@@ -1,405 +1,1834 @@
 /* components/archive.css
-   Styles for the archive home page: the sticky top navigation, the hero,
-   the search bar, and the entry cards. A plain CSS file (allowed by
-   AGENTS.md), the same pattern as components/contribute.css. Imported by
-   app/page.js, components/Header.js, and components/EntryCard.js.
+   Royal Khmer Heritage styles for the archive home page (header, layered hero,
+   stats band, editorial about section, ritual gallery) and the shared Footer.
+   Imported by app/page.js, components/Header.js, components/Footer.js and
+   components/EntryCard.js. Tokens come from components/theme.css; this file
+   composes only burgundy #54252B, antique gold #B89555, ivory #F5EFE3,
+   brown #352A24 and white, plus their declared nuances.
 
-   Palette shared with the rest of the app: #14181F page, #1C222C panels,
-   #2E3644 borders, #E8EDF2 text, #2EE6A8 accent. Secondary and small text
-   uses the lighter slate shades for readability on the dark background:
-   #CBD5E1 (slate-300) for the subtitle, captions, and counters, and #94A3B8
-   (slate-400) for tiny labels and meta. The green accent is reserved for
-   primary actions and links so the layout stays calm and editorial. */
+   Card typography system: Inter eyebrow (10.5px / 0.14em uppercase), Kantumruy
+   Pro Khmer titles (line-height 1.5), Cormorant Garamond italic English
+   subtitles, Inter→Noto Sans Khmer descriptions (14px / 1.65), and a
+   bottom-pinned "View entry" link on every card. */
 
-/* ---------------- Top navigation ---------------- */
+/* ================= Top navigation ================= */
 
-.archive-header {
+.royal-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 0 24px;
-  height: 60px;
-  background-color: #14181f;
-  border-bottom: 1px solid #2e3644;
+  gap: 18px;
+  min-height: 70px;
+  padding: 0 28px;
+  background: linear-gradient(180deg, #5a2830 0%, var(--burgundy) 55%, var(--burgundy-deep) 100%);
+  box-shadow: 0 10px 30px rgba(42, 33, 28, 0.35);
 }
 
-.archive-brand {
+/* A fine gold line running across the very top of the header, like a gilded
+   temple cornice. */
+.royal-header-hairline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gold) 18%,
+    var(--gold-soft) 50%,
+    var(--gold) 82%,
+    transparent 100%
+  );
+}
+
+.royal-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: "Courier New", monospace;
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: #cbd5e1;
+  gap: 13px;
   text-decoration: none;
-  transition: color 0.2s;
+  min-width: 0;
 }
 
-.archive-brand:hover {
-  color: #e8edf2;
-}
-
-.archive-brand-mark {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #2ee6a8;
+.royal-brand-mark {
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
-}
-
-.archive-auth {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  color: var(--burgundy-deep);
+  background: linear-gradient(145deg, var(--gold-soft) 0%, var(--gold) 55%, var(--gold-deep) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transform: rotate(45deg);
 }
 
-.archive-user {
-  max-width: 220px;
+.royal-brand-mark svg {
+  transform: rotate(-45deg);
+}
+
+.royal-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.royal-brand-khmer {
+  font-family: var(--font-khmer);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gold-soft);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.royal-brand-name {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ivory);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 13px;
-  color: #cbd5e1;
 }
 
-/* Log In is a quiet text link; Sign Up is the single green action. */
-.archive-link {
-  padding: 6px 10px;
-  font-size: 13px;
+.royal-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.royal-nav-link {
+  position: relative;
+  padding: 9px 13px;
+  font-size: 13.5px;
   font-weight: 500;
-  color: #cbd5e1;
+  color: rgba(245, 239, 227, 0.85);
   text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.2s, background-color 0.2s;
+  border-radius: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.archive-link:hover {
-  color: #e8edf2;
-  background-color: rgba(255, 255, 255, 0.05);
+/* A gold sweep under each link, drawn on hover. */
+.royal-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 4px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
 }
 
-.archive-link-primary {
-  padding: 8px 16px;
-  font-size: 13px;
+.royal-nav-link:hover {
+  color: #ffffff;
+}
+
+.royal-nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.royal-nav-link-contribute {
+  color: #ffffff;
   font-weight: 600;
-  color: #14181f;
-  background-color: #2ee6a8;
-  border-radius: 9px;
-  transition: background-color 0.2s, transform 0.2s;
+  border: 1px solid rgba(184, 149, 85, 0.7);
+  border-radius: 999px;
+  padding: 7px 16px;
+  margin-left: 8px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.archive-link-primary:hover {
-  background-color: #1cffb0;
+.royal-nav-link-contribute::after {
+  display: none;
+}
+
+.royal-nav-link-contribute:hover {
+  background-color: rgba(184, 149, 85, 0.22);
   transform: translateY(-1px);
 }
 
-.archive-logout {
-  padding: 7px 14px;
+/* Active page: brighten the link and hold its gold underline permanently so
+   visitors always know where they are. */
+.royal-nav-link.is-active {
+  color: #ffffff;
+}
+
+.royal-nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+.royal-nav-link-contribute.is-active {
+  background-color: rgba(184, 149, 85, 0.28);
+  border-color: var(--gold);
+}
+
+.royal-menu-link.is-active {
+  background-color: rgba(184, 149, 85, 0.18);
+  color: #ffffff;
+}
+
+.royal-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.royal-user {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6px 13px;
+  font-size: 12.5px;
+  color: var(--gold-soft);
+  background-color: rgba(184, 149, 85, 0.14);
+  border: 1px solid rgba(184, 149, 85, 0.35);
+  border-radius: 999px;
+}
+
+.royal-link {
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ivory);
+  text-decoration: none;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.royal-link:hover {
+  background-color: rgba(245, 239, 227, 0.1);
+}
+
+.royal-link-primary {
+  padding: 9px 20px;
+  color: var(--burgundy);
+  background: linear-gradient(145deg, var(--gold-soft) 0%, var(--gold) 60%, var(--gold-deep) 100%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.royal-link-primary:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(145deg, var(--gold) 0%, var(--gold-deep) 100%);
+}
+
+.royal-logout {
+  padding: 8px 15px;
   font-size: 13px;
   font-weight: 600;
-  color: #ff4b4b;
+  color: #ecd2cb;
   background-color: transparent;
-  border: 1px solid rgba(255, 75, 75, 0.45);
-  border-radius: 8px;
+  border: 1px solid rgba(245, 239, 227, 0.3);
+  border-radius: 999px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
 
-.archive-logout:hover {
-  background-color: rgba(255, 75, 75, 0.12);
-  color: #ff6b6b;
-}
-
-/* ---------------- Hero ---------------- */
-
-.archive-main {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.archive-hero {
-  padding: 112px 0 32px;
-  text-align: center;
-}
-
-.archive-title {
-  font-size: clamp(36px, 5.5vw, 60px);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+.royal-logout:hover {
+  background-color: rgba(245, 239, 227, 0.08);
   color: #ffffff;
-  margin: 0 0 24px;
 }
 
-.archive-description {
-  font-size: 18px;
-  line-height: 1.75;
-  color: #cbd5e1;
-  max-width: 60ch;
-  margin: 0 auto;
+/* ================ Mobile menu ================ */
+
+.royal-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  background-color: transparent;
+  border: 1px solid rgba(184, 149, 85, 0.55);
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-/* ---------------- Search ---------------- */
-
-.archive-search-wrap {
-  position: relative;
-  width: 100%;
-  max-width: 720px;
-  margin: 56px auto 0;
+.royal-menu-toggle span {
+  display: block;
+  height: 2px;
+  background-color: var(--gold-soft);
+  border-radius: 2px;
+  transition: transform 0.25s, opacity 0.2s;
 }
 
-.archive-search-icon {
+.royal-menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.royal-menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.royal-menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.royal-menu-panel {
   position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  color: #94a3b8;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 22px 24px;
+  background:
+    var(--pattern-lattice),
+    linear-gradient(180deg, var(--burgundy-deep) 0%, var(--burgundy) 100%);
+  border-top: 1px solid var(--gold);
+  box-shadow: 0 30px 50px rgba(42, 33, 28, 0.45);
+}
+
+.royal-menu-link {
+  padding: 13px 16px;
+  font-size: 15px;
+  color: var(--ivory);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.royal-menu-link:hover {
+  background-color: rgba(184, 149, 85, 0.16);
+  color: #ffffff;
+}
+
+.royal-menu-link-primary {
+  margin-top: 6px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--burgundy);
+  background-color: var(--gold);
+}
+
+.royal-menu-link-primary:hover {
+  background-color: var(--gold-soft);
+  color: var(--burgundy);
+}
+
+/* Comfortable finger-sized targets in the drop-down panel. */
+.royal-menu-link,
+.royal-menu-logout {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+}
+
+.royal-menu-user {
+  padding: 10px 14px 0;
+  font-size: 12.5px;
+  color: rgba(245, 239, 227, 0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.royal-menu-logout {
+  margin-top: 4px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: #ecd2cb;
+  background-color: transparent;
+  border: 1px solid rgba(245, 239, 227, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ================ Hero ================ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  color: var(--ivory);
+  background:
+    radial-gradient(1100px 520px at 12% -8%, rgba(184, 149, 85, 0.28), transparent 62%),
+    radial-gradient(900px 480px at 92% 16%, rgba(184, 149, 85, 0.14), transparent 60%),
+    linear-gradient(160deg, #5e2b31 0%, var(--burgundy) 40%, var(--burgundy-deep) 100%);
+}
+
+/* A faint Khmer lattice drifts across the hero. */
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  background: var(--pattern-lattice);
+  opacity: 0.9;
   pointer-events: none;
 }
 
-.archive-search {
-  width: 100%;
-  padding: 15px 20px 15px 50px;
-  font-size: 16px;
-  color: #f2f5f8;
-  background-color: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 14px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
-}
-
-.archive-search::placeholder {
-  color: #94a3b8;
-  opacity: 1;
-}
-
-.archive-search:hover {
-  border-color: #475569;
-}
-
-.archive-search:focus {
-  border-color: #2ee6a8;
-  background-color: #14181f;
-  box-shadow: 0 0 0 3px rgba(46, 230, 168, 0.12);
-}
-
-.archive-search-wrap:focus-within .archive-search-icon {
-  color: #cbd5e1;
-}
-
-/* ---------------- Count and status ---------------- */
-
-.archive-count {
-  font-family: "Courier New", monospace;
-  font-size: 12px;
-  letter-spacing: 1px;
-  color: #cbd5e1;
-  margin: 28px 0 0;
-}
-
-.archive-status {
-  grid-column: 1 / -1;
-  color: #cbd5e1;
-  text-align: center;
-  padding: 48px 0 0;
-}
-
-/* ---------------- Entry cards ---------------- */
-
-.archive-grid {
+.hero-shell {
+  position: relative;
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: clamp(84px, 11vw, 136px) 24px 56px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 28px;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: clamp(36px, 6vw, 84px);
+}
+
+.hero-eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--font-khmer);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--gold-soft);
+}
+
+.hero-title {
+  margin: 0 0 22px;
+  font-family: var(--font-serif);
+  font-size: var(--fs-hero);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  color: var(--ivory);
+}
+
+.hero-sub {
+  margin: 0 0 30px;
+  max-width: 52ch;
+  font-size: var(--fs-lede);
+  line-height: 1.72;
+  color: rgba(245, 239, 227, 0.86);
+}
+
+.hero-cta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 14px 30px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  background: linear-gradient(145deg, var(--gold-soft) 0%, var(--gold) 55%, var(--gold-deep) 100%);
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.32);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* The framed media panel. When a real entry photo exists it fills the frame;
+   otherwise an engraved monogram stands in. Both share the double gold border
+   so the frame reads the same either way. */
+.hero-media {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.hero-frame {
+  position: relative;
+  padding: 14px;
+  background: linear-gradient(145deg, rgba(245, 239, 227, 0.09), rgba(245, 239, 227, 0.03));
+  border: 1px solid rgba(184, 149, 85, 0.7);
+  outline: 1px solid rgba(184, 149, 85, 0.35);
+  outline-offset: 5px;
+  box-shadow: 0 30px 60px rgba(42, 33, 28, 0.45);
+}
+
+/* Corner ornaments, like gilded metal corner brackets. */
+.hero-frame::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 26px;
+  height: 26px;
+  border-top: 3px solid var(--gold-soft);
+  border-right: 3px solid var(--gold-soft);
+}
+
+.hero-frame::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: -1px;
+  width: 26px;
+  height: 26px;
+  border-bottom: 3px solid var(--gold-soft);
+  border-left: 3px solid var(--gold-soft);
+}
+
+.hero-media-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+/* The hero photograph is a button that opens the lightbox at full size. */
+.hero-image-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  text-align: center;
+}
+
+.hero-image-btn:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.hero-zoom {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+
+.hero-monogram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  aspect-ratio: 4 / 5;
+  text-align: center;
+  background:
+    radial-gradient(400px 300px at 50% 30%, rgba(184, 149, 85, 0.22), transparent 70%),
+    linear-gradient(160deg, rgba(94, 43, 49, 0.9), rgba(67, 32, 36, 0.94));
+}
+
+.hero-monogram-glyph {
+  font-family: var(--font-khmer);
+  font-size: clamp(64px, 9vw, 96px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold-soft);
+}
+
+.hero-monogram-text {
+  margin: 6px 0 0;
+  font-family: var(--font-khmer);
+  font-size: 15px;
+  color: var(--ivory);
+  max-width: 22ch;
+  line-height: 1.6;
+}
+
+.hero-monogram .royal-ornament {
+  width: min(160px, 60%);
+}
+
+.hero-scroll {
+  position: relative;
+  text-align: center;
+  padding: 10px 0 44px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(245, 239, 227, 0.55);
+}
+
+.hero-scroll::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 42px;
+  margin: 12px auto 0;
+  background: linear-gradient(180deg, var(--gold-soft), transparent);
+  animation: heroScroll 2.4s ease-in-out infinite;
+}
+
+@keyframes heroScroll {
+  0%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ================ About ================ */
+
+.about {
+  /* Warm parchment surface, kept pure and calm — no corner rings. */
+  padding: clamp(52px, 6vw, 88px) 24px clamp(56px, 6.5vw, 92px);
+  background: #f7f3eb;
+}
+
+.about-shell {
+  max-width: var(--shell);
+  margin: 0 auto;
+  display: grid;
+  /* Carousel on the left, description on the right; the first column gets the
+     wider share so the 3D stage has room to breathe. */
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  align-items: center;
+  gap: clamp(44px, 6vw, 88px);
+}
+
+/* The left column is a compact museum crest — a warm parchment mat, a crisp
+   gold frame, and the deep maroon field that carries the Khmer seal. Sized as
+   an emblem rather than a full panel, so it reads as a deliberate mark instead
+   of an empty picture card. */
+.about-plaque {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+  padding: clamp(12px, 1.6vw, 16px); /* outer mat */
+  background: #f7f3eb;
+  border: 1px solid #c5a059;
+  box-shadow: 0 1px 2px rgba(74, 37, 37, 0.08);
+}
+
+.about-plaque::before {
+  content: "";
+  position: absolute;
+  inset: clamp(5px, 0.8vw, 7px);
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  pointer-events: none;
+}
+
+.about-plaque-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.2vw, 22px);
+  padding: clamp(20px, 2.8vw, 28px) clamp(16px, 2vw, 22px);
+  text-align: center;
+  background:
+    var(--pattern-lattice),
+    linear-gradient(160deg, #4a2525 0%, #3d1f1f 100%);
+  border: 1px solid rgba(197, 160, 89, 0.25);
+}
+
+.about-plaque-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(96px, 13vw, 124px);
+  height: clamp(96px, 13vw, 124px);
+  font-family: var(--font-khmer);
+  font-size: clamp(42px, 5vw, 56px);
+  font-weight: 700;
+  line-height: 1;
+  color: #d4b877;
+  border: 1px solid rgba(197, 160, 89, 0.55);
+  border-radius: 50%;
+}
+
+.about-plaque-rule {
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c5a059, transparent);
+}
+
+.about-plaque-text {
+  margin: 0;
+  font-family: var(--font-khmer);
+  font-size: clamp(16px, 1.8vw, 18px);
+  font-weight: 600;
+  line-height: 1.7;
+  color: #f7f3eb;
+  max-width: 24ch;
+}
+
+/* Once the archive holds photos, the framed slot becomes a cinematic 3D
+   coverflow: three cards float on a burgundy stage — one large active card in
+   the centre, two smaller cards anchored behind at the sides — overlapping
+   through a shared perspective. Per-card positions, rotation, scale and drag
+   offsets are computed in JS (components/AboutSlider.js) so slide, swipe and
+   loop stay one system; this file owns the stage frame, the parchment mats,
+   hover depth and the type beneath. The crest above stays as the fallback, so
+   a photo-less archive never shows an empty stage. */
+.about-carousel {
+  position: relative;
+  /* Own stacking context so the offset background card (::before) layers
+     behind the stage and cards but never behind the section surface. */
+  isolation: isolate;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* A larger parchment "background card" — a second museum mat, tilted slightly —
+   peeks out behind the burgundy stage, so the coverflow reads as layered
+   depth: background card -> dark stage -> floating photo cards. */
+.about-carousel::before {
+  content: "";
+  position: absolute;
+  inset: -18px 14px;
+  background: linear-gradient(180deg, #fbf7ee 0%, #f3ead7 100%);
+  border: 1px solid rgba(197, 160, 89, 0.6);
+  border-radius: 18px;
+  box-shadow: 0 22px 48px rgba(74, 37, 37, 0.16);
+  transform: rotate(-1.1deg);
+  z-index: -1;
+}
+
+/* The stage is the dark theatre behind the cards — deep burgundy with the
+   Khmer lattice, a fine gold hairline and a soft vignette that pushes the
+   centre card forward. Generous padding keeps the dark panel visible around
+   the card cluster. touch-action: pan-y keeps vertical scrolling native while
+   horizontal swipes belong to the coverflow. */
+.about-carousel-stage {
+  position: relative;
+  width: 100%;
+  padding: clamp(24px, 3vw, 42px);
+  perspective: 1400px;
+  touch-action: pan-y;
+  cursor: grab;
+  background:
+    var(--pattern-lattice),
+    linear-gradient(165deg, #4a2525 0%, #3d1f1f 100%);
+  border: 1px solid rgba(197, 160, 89, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(74, 37, 37, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.about-carousel-stage.is-dragging {
+  cursor: grabbing;
+}
+
+/* Inner gilded mat, echoing the museum framing used elsewhere on the page. */
+.about-carousel-stage::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(197, 160, 89, 0.26);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* Cinematic edge falloff inside the stage. */
+.about-carousel-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: radial-gradient(
+    130% 95% at 50% 42%,
+    transparent 55%,
+    rgba(36, 18, 18, 0.5) 100%
+  );
+  pointer-events: none;
+}
+
+/* Invisible spacer that gives the stage its height from the card geometry. */
+.about-carousel-spacer {
+  margin: 0 auto;
+  visibility: hidden;
+}
+
+.about-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  will-change: transform, opacity;
+}
+
+/* Each card is a parchment mat with a gold inner frame; the button is the
+   hover layer, so the lift never fights the JS-computed arc above it. */
+.about-card-btn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: clamp(8px, 1vw, 12px);
+  background: #f7f3eb;
+  border: 1px solid #c5a059;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.about-card-btn img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid rgba(197, 160, 89, 0.55);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Hover depth: side cards lift toward the viewer; the active card breathes
+   with the same golden glow the rest of the page uses on interaction. */
+.about-card-btn:hover {
+  transform: translateY(-9px) scale(1.025);
+  box-shadow: 0 24px 46px rgba(36, 18, 18, 0.4);
+}
+
+.about-card.is-active .about-card-btn {
+  box-shadow: 0 18px 44px rgba(28, 15, 15, 0.5);
+}
+
+.about-card.is-active .about-card-btn:hover {
+  transform: translateY(-4px);
+}
+
+/* Round gold-ring arrows float at the stage edges. */
+.about-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  line-height: 1;
+  color: #f7f3eb;
+  background: rgba(36, 18, 18, 0.55);
+  border: 1px solid rgba(197, 160, 89, 0.65);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.about-carousel-prev {
+  left: -6px;
+}
+
+.about-carousel-next {
+  right: -6px;
+}
+
+.about-carousel-arrow:hover {
+  background: rgba(61, 31, 31, 0.95);
+  transform: translateY(-50%) scale(1.07);
+}
+
+.about-carousel-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   margin-top: 24px;
 }
 
-.entry-card-link {
+.about-carousel-caption {
+  margin: 0;
+  font-family: var(--font-khmer);
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: var(--brown-soft);
+  text-align: center;
+  max-width: 42ch;
+}
+
+.about-carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.about-carousel-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  background: rgba(184, 149, 85, 0.35);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.about-carousel-dot:hover {
+  background: rgba(184, 149, 85, 0.7);
+}
+
+.about-carousel-dot.is-active {
+  background: #b89555;
+  transform: scale(1.3);
+  box-shadow: 0 0 0 3px rgba(184, 149, 85, 0.18);
+}
+
+/* Museum-label typography beside the coverflow: left-aligned, with generous
+   vertical breathing room between the eyebrow, heading, lead, and provenance. */
+.about-copy .section-eyebrow {
+  margin-bottom: 18px;
+}
+
+.about-copy .section-title {
+  margin: 0 0 20px;
+  font-size: clamp(28px, 3.2vw, 38px);
+  line-height: 1.24;
+}
+
+.about-copy .section-lede {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--brown-soft);
+}
+
+/* The provenance is grouped as a single "archive note", set apart from the
+   description by a subtle gold hairline so it reads, at a glance: who shares
+   this knowledge, and who curates it. */
+.about-note {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(197, 160, 89, 0.35);
+}
+
+.about-note-label {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.6px;
+  text-transform: uppercase;
+  color: #a9863d;
+}
+
+.about-note-text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--brown);
+}
+
+.about .about-credit {
+  margin: 20px 0 0;
+  font-size: 14px;
+  color: var(--brown-mute);
+}
+
+/* ================ Collection / gallery ================ */
+
+.collection {
+  padding: var(--section-pad) 24px clamp(48px, 6vw, 72px);
+  background: var(--white);
+}
+
+.collection-head {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.collection-head .section-eyebrow {
+  justify-content: center;
+}
+
+/* Search: a centre-stage ivory pill with a gold ring. */
+.search-wrap {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.search-icon {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--gold-deep);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 18px 52px 18px 56px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--brown);
+  background-color: var(--ivory-soft);
+  border: 1px solid var(--gold-hairline);
+  border-radius: 999px;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.search-input::placeholder {
+  color: var(--brown-mute);
+  opacity: 1;
+}
+
+/* Hide the browser's built-in "×" clear button on type="search" inputs so only
+   the custom .search-clear button shows (avoids two overlapping crosses). */
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input:focus {
+  border-color: var(--gold);
+  background-color: var(--white);
+  box-shadow: 0 0 0 4px var(--gold-pale);
+}
+
+/* One-tap clear button inside the search pill. */
+.search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(184, 149, 85, 0.16);
+  color: var(--gold-deep);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.search-clear:hover {
+  background: var(--gold);
+  color: var(--ivory);
+}
+
+.collection-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 26px 0 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--brown-mute);
+}
+
+.collection-count::before,
+.collection-count::after {
+  content: "";
+  width: 34px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+
+.collection-count::after {
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.gallery-featured {
+  margin-top: 34px;
+}
+
+.entry-card-link,
+.entry-card-featured-link {
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
 }
 
-.entry-card-link:focus-visible {
+.entry-card-link:focus-visible,
+.entry-card-featured-link:focus-visible {
   outline: none;
 }
 
-.entry-card-link:focus-visible .entry-card {
-  border-color: #2ee6a8;
-  box-shadow: 0 0 0 3px rgba(46, 230, 168, 0.15);
+.entry-card-link:focus-visible .entry-card,
+.entry-card-featured-link:focus-visible .entry-card-featured {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px var(--gold-pale);
 }
 
+/* Standard card. */
 .entry-card {
-  flex: 1 0 auto;
+  position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%;
   overflow: hidden;
-  background-color: #1c222c;
-  border: 1px solid #2e3644;
-  border-radius: 16px;
-  transition: transform 0.25s ease, border-color 0.25s ease,
-    box-shadow 0.25s ease;
+  background-color: var(--white);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--card-radius);
+  box-shadow: 0 3px 14px rgba(53, 42, 36, 0.07);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.entry-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 2;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold-soft));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.32s ease;
 }
 
 .entry-card:hover {
-  transform: translateY(-4px);
-  border-color: #3a4556;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  transform: translateY(-7px);
+  border-color: var(--gold);
+  box-shadow: var(--shadow-lift);
 }
 
-/* The photo is the main visual focus: a consistent 16:9 crop that gently
-   zooms on hover. */
+.entry-card:hover::before {
+  transform: scaleX(1);
+}
+
 .entry-card-image {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.6s ease;
 }
 
 .entry-card:hover .entry-card-image {
-  transform: scale(1.04);
+  transform: scale(1.055);
 }
 
 .entry-card-placeholder {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1c222c 0%, #202837 100%);
-  color: #3a4556;
-  font-size: 24px;
+  background:
+    var(--pattern-lattice),
+    linear-gradient(135deg, var(--ivory-deep) 0%, var(--ivory-soft) 100%);
+  color: var(--gold-deep);
+  font-size: 26px;
 }
 
 .entry-card-body {
-  padding: 20px 22px;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  /* Keep long, unwrappable text inside the card instead of overflowing the
+     flex column. */
+  min-width: 0;
+  padding: 22px 24px 24px;
 }
 
+/* Editorial entry number, like plates in a museum sequence: Inter, 10.5px,
+   uppercase with 0.14em tracking in antique gold / taupe. */
 .entry-card-kicker {
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #94a3b8;
-  margin: 0 0 10px;
-}
-
-.entry-card-title-khmer {
-  /* Khmer needs a Khmer font and a roomy line height; no letter-spacing
-     or uppercase transforms, which distort or clip the glyphs. */
-  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
-    sans-serif;
-  font-size: 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
   font-weight: 600;
-  line-height: 1.55;
-  color: #ffffff;
-  margin: 0 0 6px;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
 }
 
+.entry-card-kicker span {
+  color: var(--brown-mute);
+  letter-spacing: 0.08em;
+}
+
+/* Why a search result appeared: a quiet letter-spaced plate under the entry
+   number. Same small-caps voice as the kicker, but set in muted brown so it
+   never competes with the gold number above it. Only rendered while searching. */
+.entry-card-match {
+  margin: 0 0 12px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brown-mute);
+}
+
+/* Khmer titles use Kantumruy Pro (SemiBold) with a generous 1.5 line-height so
+   stacked diacritics and combining marks are never clipped. */
+.entry-card-title-khmer {
+  font-family: var(--font-khmer-display);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  color: var(--burgundy);
+  margin: 0 0 8px;
+  /* Titles never decide the card height: capped at two lines with an
+     ellipsis so long and short names stay balanced. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* On the grid cards reserve a full two-line title block (2 lines × 1.5
+   line-height = 3em), so the romanized title and description start at the same
+   height on every card in a row. */
+.entry-card .entry-card-title-khmer {
+  min-height: 3em;
+}
+
+/* English subtitles: Cormorant Garamond italic, warm muted brown, clearly
+   separated from the Khmer title above. */
 .entry-card-title-english {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 14px;
+  font-family: var(--font-serif-subtitle);
+  font-size: 15.5px;
+  font-weight: 500;
   line-height: 1.5;
   font-style: italic;
   letter-spacing: 0.01em;
-  color: #cbd5e1;
-  margin: 0 0 16px;
+  color: var(--brown-soft);
+  margin: 0 0 14px;
+  /* One line only: long romanized names end in an ellipsis instead of
+     wrapping and shifting the description lower than its neighbours. */
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .entry-card-description {
-  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", Arial,
-    sans-serif;
+  /* Inter renders the English copy more cleanly and consistently, while Khmer
+     glyphs still fall back to Noto Sans Khmer at the end of the same stack.
+     1.65 line-height keeps both scripts comfortable without clipping Khmer
+     combining marks. */
+  font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 1.75;
-  color: #cbd5e1;
-  margin: 0;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  color: var(--brown-soft);
+  margin: 0 0 18px;
+  /* Descriptions stay inside the card rhythm: three lines, then an ellipsis.
+     The full text is always one tap away on the entry page. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Reserve the full three-line slot on the grid cards (3 lines × 1.65
+   line-height = 4.95em) so even a one-sentence description keeps its footer
+   pinned to the same height as the others. */
+.entry-card .entry-card-description {
+  min-height: 4.95em;
 }
 
 .entry-card-meta {
-  margin: 16px 0 0;
+  /* Contributor attribution row, shared by standard and featured cards. The
+     whole row is Inter (via the --font-sans token) at 13px so "who shared
+     this" reads clearly without competing with the title. Flex + wrap lets a
+     long name or place flow to a second line instead of crowding or
+     overlapping; the hairline keeps the row apart from the description. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
   padding-top: 14px;
-  border-top: 1px solid #2e3644;
-  font-family: "Courier New", monospace;
-  font-size: 11px;
-  line-height: 1.7;
-  letter-spacing: 0.5px;
-  color: #94a3b8;
+  border-top: 1px solid var(--gold-hairline);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--brown);
 }
 
-.entry-card-more {
-  margin: 12px 0 0;
-  text-align: right;
-  font-size: 13px;
+/* The "Contributed by" tag: still a letterspaced uppercase label, but lifted
+   from 10.5px to 12px and set in muted antique gold, so it stays a quiet tag
+   that is clearly legible instead of looking faded next to the name. */
+.entry-card-meta-label {
+  text-transform: uppercase;
+  font-size: 12px;
   font-weight: 600;
-  color: #2ee6a8;
-  transition: color 0.2s ease;
+  line-height: inherit;
+  letter-spacing: 0.1em;
+  color: var(--gold-deep);
+}
+
+/* The contributor's name: weight 500 to match the location text, in warm dark
+   brown for strong contrast on white. The attribution reads as one calm unit. */
+.entry-card-meta-name {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--brown);
+}
+
+/* The location is grouped with its dot so a wrap always carries "• Phnom Penh"
+   together instead of leaving a lone dot at the start of a line. Weight 500
+   matches the name; warm brown keeps it readable yet a touch softer. */
+.entry-card-meta-place {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--brown-soft);
+}
+
+/* The • between name and location: clearly visible but subtle — muted antique
+   gold at the row's own size so it never dominates the text. */
+.entry-card-meta-dot {
+  color: var(--gold-deep);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* The "View entry →" link is pushed to the bottom of every card with
+   margin-top: auto (all cards are vertical flex containers), so it sits on the
+   same line no matter how long the description is. Padding keeps a minimum gap
+   above it even on cards with no spare flex space. */
+.entry-card-more {
+  margin-top: auto;
+  padding-top: 12px;
+  text-align: right;
+  font-family: var(--font-serif-subtitle);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--burgundy);
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .entry-card:hover .entry-card-more {
-  color: #1cffb0;
+  color: var(--gold-deep);
+  transform: translateX(-3px);
 }
 
-/* ---------------- Footer ---------------- */
+/* Featured card: the wide editorial fold shared by the rest of the cards. */
+.entry-card-featured {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  background-color: var(--white);
+  border: 1px solid var(--gold);
+  border-radius: var(--card-radius);
+  box-shadow: 0 22px 54px rgba(53, 42, 36, 0.16);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-.archive-footer {
-  margin-top: 72px;
-  padding: 24px 0 56px;
-  border-top: 1px solid #2e3644;
-  font-size: 13px;
+.entry-card-featured:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 64px rgba(53, 42, 36, 0.22);
+}
+
+.entry-card-featured-media {
+  position: relative;
+  min-height: 320px;
+  /* Same 16:10 picture ratio as the grid cards, so the hero panel keeps the
+     shared image dimensions instead of collapsing or stretching. */
+  aspect-ratio: 16 / 10;
+}
+
+.entry-card-featured-media::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--gold-hairline);
+}
+
+.entry-card-featured-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.entry-card-featured:hover .entry-card-featured-image {
+  transform: scale(1.04);
+}
+
+.entry-card-featured-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  color: var(--gold-deep);
+  background:
+    radial-gradient(400px 320px at 30% 20%, var(--gold-ghost), transparent 65%),
+    var(--pattern-lattice),
+    linear-gradient(140deg, var(--ivory-deep) 0%, var(--ivory-soft) 100%);
+}
+
+.entry-card-featured-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(28px, 4vw, 48px);
+}
+
+.entry-card-featured-body .entry-card-title-khmer {
+  font-size: clamp(26px, 3.4vw, 34px);
+  line-height: 1.5;
+}
+
+.entry-card-featured-body .entry-card-title-english {
+  font-size: 16px;
+}
+
+.entry-card-featured-body .entry-card-description {
+  font-size: 14px;
+  /* Reserve the same three clamped lines as the grid cards, scaled to the
+     shared 14px type size (3 lines × 1.65 = 4.95em). */
+  min-height: 4.95em;
+}
+
+.entry-card-featured-body .entry-card-more {
+  font-size: 15px;
+}
+
+/* The gallery row: remaining rituals in a balanced three-column grid. */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  margin-top: 30px;
+}
+
+.gallery-featured .entry-card-featured {
+  border-bottom-width: 3px;
+}
+
+/* Status copy under the search when nothing loads or nothing matches. */
+.collection-status {
+  text-align: center;
+  padding: 48px 0 8px;
+  font-size: 16px;
+  color: var(--brown-soft);
+}
+
+/* Empty / error / no-results panels with a clear call to action. */
+.collection-state {
+  max-width: 560px;
+  margin: 42px auto 0;
+  padding: 44px 28px;
+  text-align: center;
+  background: var(--ivory-soft);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--card-radius);
+}
+
+.collection-state-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--burgundy);
+}
+
+.collection-state-text {
+  margin: 12px 0 0;
+  font-size: 15px;
   line-height: 1.7;
-  color: #94a3b8;
+  color: var(--brown-soft);
 }
 
-/* ---------------- Responsive ---------------- */
+.collection-state-btn {
+  margin-top: 22px;
+  padding: 11px 26px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ivory);
+  background: linear-gradient(145deg, var(--burgundy-soft) 0%, var(--burgundy) 55%, var(--burgundy-deep) 100%);
+  border: 1px solid rgba(184, 149, 85, 0.45);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(84, 37, 43, 0.26);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
-@media (max-width: 720px) {
-  .archive-header {
-    height: 56px;
+.collection-state-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(84, 37, 43, 0.32);
+}
+
+/* Loading skeletons mirror the card layout so nothing jumps on load. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--card-radius);
+  background: linear-gradient(
+    100deg,
+    var(--ivory-deep) 40%,
+    var(--ivory-wash) 50%,
+    var(--ivory-deep) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s linear infinite;
+}
+
+@keyframes skeletonShimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-featured {
+  height: clamp(360px, 42vw, 420px);
+}
+
+.skeleton-card {
+  height: 600px;
+}
+
+.about-credit {
+  margin: 0;
+  font-size: 14px;
+  color: var(--brown-mute);
+}
+
+/* Fill the grid cells: the Reveal wrapper and the card link stretch to the
+   row height so every card in a row matches the tallest one. */
+.gallery-grid > .reveal {
+  height: 100%;
+}
+
+.gallery-grid > .reveal > .entry-card-link {
+  height: 100%;
+}
+
+/* ================ Footer ================ */
+
+.heritage-footer {
+  position: relative;
+  color: var(--ivory);
+  background: linear-gradient(180deg, #3b2f27 0%, var(--brown) 45%, #241b16 100%);
+  border-top: 1px solid var(--gold);
+}
+
+/* A patterned gilded band just above the footer. */
+.heritage-footer-top {
+  height: 6px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 20px, rgba(184, 149, 85, 0.65) 20px 21px),
+    linear-gradient(90deg, var(--gold-deep), var(--gold), var(--gold-deep));
+  opacity: 0.85;
+}
+
+.heritage-footer-inner {
+  text-align: center;
+  padding: clamp(48px, 7vw, 72px) 24px clamp(44px, 6vw, 64px);
+}
+
+.heritage-footer .royal-ornament {
+  color: var(--gold);
+}
+
+.heritage-footer-brand {
+  margin: 18px 0 8px;
+  font-family: var(--font-khmer);
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--gold-soft);
+}
+
+.heritage-footer-name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--ivory);
+}
+
+.heritage-footer-credit {
+  margin: 26px 0 0;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ivory);
+}
+
+.heritage-footer-note {
+  margin: 10px auto 0;
+  font-size: 13px;
+  line-height: 1.85;
+  color: rgba(245, 239, 227, 0.62);
+  max-width: 52ch;
+}
+
+/* ================ Responsive ================ */
+
+@media (min-width: 861px) {
+  .royal-nav,
+  .royal-auth {
+    display: flex;
+  }
+
+  .royal-menu-toggle,
+  .royal-menu-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-media {
+    justify-self: center;
+    max-width: 400px;
+  }
+
+  .about-shell {
+    grid-template-columns: 1fr;
+    gap: clamp(36px, 5vw, 48px);
+    max-width: 720px;
+  }
+
+  .about-plaque {
+    max-width: 300px;
+  }
+
+  .about-carousel {
+    max-width: 640px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .entry-card-featured {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-card-featured-media {
+    min-height: 260px;
+  }
+
+  .entry-card-featured-media::after {
+    right: auto;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+  }
+}
+
+@media (max-width: 860px) {
+  .royal-header {
+    min-height: 62px;
     padding: 0 16px;
     gap: 12px;
   }
 
-  .archive-user {
-    max-width: 140px;
+  .royal-nav,
+  .royal-auth {
+    display: none;
   }
 
-  .archive-main {
-    padding: 0 16px;
+  .royal-menu-toggle {
+    display: flex;
   }
 
-  .archive-hero {
-    padding: 64px 0 20px;
+  .royal-brand-khmer {
+    font-size: 12px;
   }
 
-  .archive-title {
-    font-size: 34px;
+  .royal-brand-name {
+    font-size: 13.5px;
+    max-width: 46vw;
   }
 
-  .archive-description {
-    font-size: 16px;
-  }
-
-  .archive-search-wrap {
-    max-width: 100%;
-    margin: 40px auto 0;
-  }
-
-  .archive-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .entry-card-title-khmer {
-    font-size: 21px;
+  .hero-shell {
+    padding: 76px 20px 44px;
   }
 }
+
+/* Honour prefers-reduced-motion: static cards, no shimmer, no cue pulse. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll::after,
+  .skeleton {
+    animation: none !important;
+  }
+
+  .entry-card,
+  .entry-card-featured {
+    transition: none !important;
+  }
+
+  /* The About coverflow swaps cards instantly (no glide, no dot bloom);
+     auto-advance is already disabled in JS for reduced-motion visitors. */
+  .about-card,
+  .about-card-btn,
+  .about-carousel-dot {
+    transition: none !important;
+  }
+
+  .entry-card:hover,
+  .entry-card-featured:hover,
+  .entry-card-featured:hover .entry-card-featured-image,
+  .entry-card:hover .entry-card-image {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  /* Full-width mobile cards don't need the reserved two-line title block;
+     one line is enough rhythm and saves vertical space. */
+  .entry-card .entry-card-title-khmer {
+    min-height: 1.5em;
+  }
+
+  /* On phones the crest keeps its frame but drops the forced 3:4 stage, and
+     the coverflow simply gets a tighter max-width so the arc still breathes
+     above the copy. */
+  .about-plaque {
+    aspect-ratio: auto;
+    max-width: 280px;
+  }
+
+  .about-carousel {
+    max-width: 430px;
+  }
+
+  .about-carousel::before {
+    inset: -12px 8px;
+  }
+
+  .about-carousel-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+  }
+
+  .about-plaque-inner {
+    padding: 26px 20px;
+  }
+
+  .entry-card-featured-body {
+    padding: 26px 22px;
+  }
+}
+
+/* ================= Lightbox (hero "View full size") ================= */
+/* The fullscreen photo viewer is shared with the entry detail page, whose
+   stylesheet (components/detail.css) defines these same rules. That page's
+   stylesheet is not loaded on the home page, so without this copy the hero
+   lightbox rendered unstyled at the bottom of the page. Both files keep the
+   identical rules so each page stylesheet stays self-contained. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(42, 33, 28, 0.9);
+}
+
+.lightbox-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: min(1100px, 92vw);
+  max-height: 88vh;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 76vh;
+  object-fit: contain;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-caption {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  color: var(--ivory);
+  line-height: 1.6;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--burgundy);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transition: background-color 0.2s;
+}
+
+.lightbox-close:hover {
+  background: var(--gold-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox {
+    animation: none;
+  }
+}
+
