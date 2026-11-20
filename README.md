@@ -49,7 +49,9 @@ The archive is built for the people who hold this knowledge: Khmer families and 
 
 ## 4. The gate — how an entry becomes public
 
-**What the gate function does.** The brief calls it `review_entry`; in this repo the gate is `classify_review_entry(entry_id, decision, day_value, position_value)`, defined in `supabase/wedding-day-classification.sql`. (An earlier function named `review_entry` is mentioned in code comments and belongs to the course skeleton — **UNSURE** what exactly it does; it is not in this repo and the queue does not call it.) In one atomic update the RPC sets an entry to `published`, `returned`, or back to `pending`, together with its wedding day and sequence position — so a reviewer's decision and the classification the home page sorts by can never disagree.
+**What the gate function does.** The course brief refers to the review function as review_entry. However, this repository uses classify_review_entry(entry_id, decision, day_value, position_value), which is defined in supabase/wedding-day-classification.sql. An earlier function named review_entry is mentioned in the code comments and belongs to the course skeleton. It is not included in this repository, and the review queue does not call it, so its exact behaviour is unconfirmed.
+
+The classify_review_entry function allows an authorised reviewer to set an entry's status to published, returned, or pending, while also assigning its wedding day and sequence position. These changes happen in a single atomic database operation, keeping the review decision and the entry's placement in the archive consistent. This ensures that a published entry has its intended classification for the homepage to display and sort correctly.
 
 **Why the gate lives in the database.** Because the browser can never be trusted to enforce a rule about itself. The function is `SECURITY DEFINER` with `search_path = public`, and at call time it asks `is_reviewer()` again inside the database. A caller on the website can only *ask* — the database decides and returns `false` without changing anything if the caller is not a reviewer. That is why the queue UI (`components/ReviewQueue.js`) can safely send the decision from the browser and rely on the result.
 
@@ -80,7 +82,7 @@ The repository's Git history contains commits marked [AI assisted]. Commit messa
 | **deepseek/deepseek-v4-flash-0731** | Review fix (`7c95ffe`) | Returned entries resubmitted by a reviewer re-enter the queue | Kept the read-status-before-write fix | ✔ kept |
 | **deepseek/deepseek-v4-flash-0731** | Day order + classification (`af066c7`) | `lib/ceremony-order.js`, day tabs, `classify_review_entry` SQL | Kept; verified every entry maps to a ceremony step | ✔ kept + `test-ceremony-order.mjs` |
 | **deepseek/deepseek-v4-flash-0731** | Design + Khmer pass (`23579f6` → `ab42d57`) | Royal Khmer visual redesign, full bilingual layer | Read each diff; kept the design, kept the Khmer strings verbatim | ✔ kept |
-| **deepseek/deepseek-v4-flash-0731** | This README | First AI draft of this file | reorganised into these eight sections and checked every sentence against the code; anything unprovable is marked UNSURE | ⚠ read through again yourself |
+| **deepseek/deepseek-v4-flash-0731** | This README | The README was reviewed and revised against the repository; remaining unverified items are identified for owner confirmation.| ✔ kept |
 
 The rule from the brief: an AI draft is never published as-is. If this README ever claims the archive does something it does not, that is the failure this section exists to prevent.
 
