@@ -159,7 +159,9 @@ export default function EditEntryPage() {
               description: entry.description || "",
               description_khmer: entry.description_khmer || "",
               contributor: entry.contributor || "",
+              contributor_khmer: entry.contributor_khmer || "",
               place: entry.place || "",
+              place_khmer: entry.place_khmer || "",
             }}
             initialImage={entry.image || ""}
             onSubmit={handleUpdate}

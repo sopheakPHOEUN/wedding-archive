@@ -24,6 +24,13 @@ export default function AuthLayout({ title, children, brandImage }) {
     lang === "km" && (collection.curatorKhmer || "").trim()
       ? collection.curatorKhmer
       : collection.curator;
+  // The archive description follows the active language too: Khmer when the
+  // site is in Khmer, English fallback so the subtitle is never blank (same
+  // pattern as the curator's name above).
+  const description =
+    lang === "km" && (collection.descriptionKhmer || "").trim()
+      ? collection.descriptionKhmer
+      : collection.description;
   return (
     <div className="auth-page">
       <div className="auth-lang">
@@ -56,7 +63,7 @@ export default function AuthLayout({ title, children, brandImage }) {
       <main id="main" className="auth-main">
         <div className="auth-wrap">
           <h1 className="auth-title">{title}</h1>
-          <p className="auth-subtitle">{collection.description}</p>
+          <p className="auth-subtitle">{description}</p>
 
           <div className="auth-card">{children}</div>
 

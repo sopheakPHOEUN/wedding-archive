@@ -40,12 +40,24 @@ const TEXT_FIELDS = [
   {
     key: "contributor",
     labelKey: "form.field.contributor",
-    placeholder: "Grandma Srey Nang",
+    placeholder: "Ms. Sok Socheata",
+  },
+  {
+    key: "contributor_khmer",
+    labelKey: "form.field.contributor_khmer",
+    khmer: true,
+    placeholder: "អ្នកស្រី សុខ សុជាតា",
   },
   {
     key: "place",
     labelKey: "form.field.place",
     placeholder: "Kompong Cham Province, Cambodia",
+  },
+  {
+    key: "place_khmer",
+    labelKey: "form.field.place_khmer",
+    khmer: true,
+    placeholder: "ខេត្តកំពង់ចាម កម្ពុជា",
   },
 ];
 
@@ -68,7 +80,9 @@ export default function ContributeForm({
     description: initialValues.description || "",
     description_khmer: initialValues.description_khmer || "",
     contributor: initialValues.contributor || "",
+    contributor_khmer: initialValues.contributor_khmer || "",
     place: initialValues.place || "",
+    place_khmer: initialValues.place_khmer || "",
     image_url: currentImage,
   });
   const [imageFile, setImageFile] = React.useState(null);
@@ -111,7 +125,9 @@ export default function ContributeForm({
       "description",
       "description_khmer",
       "contributor",
+      "contributor_khmer",
       "place",
+      "place_khmer",
       "image",
     ];
     const firstKey = order.find((key) => errors[key]);
