@@ -6,6 +6,8 @@
 "use client";
 
 import React from "react";
+import LanguageSwitch from "./LanguageSwitch.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./archive.css";
 
 export default function HeaderMenu({
@@ -16,6 +18,7 @@ export default function HeaderMenu({
   active = "none",
   onNavigate,
 }) {
+  const { t } = useLanguage();
   const isActive = (key) => (key === active ? "is-active" : "");
 
   return (
@@ -26,7 +29,7 @@ export default function HeaderMenu({
         onClick={onNavigate}
         aria-current={active === "home" ? "page" : undefined}
       >
-        Home
+        {t("nav.home")}
       </a>
       {!loading && user ? (
         <>
@@ -36,7 +39,7 @@ export default function HeaderMenu({
             onClick={onNavigate}
             aria-current={active === "my-entries" ? "page" : undefined}
           >
-            My Entries
+            {t("nav.myEntries")}
           </a>
           {isReviewer ? (
             <a
@@ -45,7 +48,7 @@ export default function HeaderMenu({
               onClick={onNavigate}
               aria-current={active === "review" ? "page" : undefined}
             >
-              Review
+              {t("nav.review")}
             </a>
           ) : null}
           <a
@@ -54,7 +57,7 @@ export default function HeaderMenu({
             onClick={onNavigate}
             aria-current={active === "contribute" ? "page" : undefined}
           >
-            Contribute
+            {t("nav.contribute")}
           </a>
           <span className="royal-menu-user" title={user.email}>
             {user.email}
@@ -64,23 +67,26 @@ export default function HeaderMenu({
             className="royal-menu-logout"
             onClick={onLogout}
           >
-            Logout
+            {t("nav.logout")}
           </button>
         </>
       ) : (
         <>
           <a className="royal-menu-link" href="/login" onClick={onNavigate}>
-            Log In
+            {t("nav.login")}
           </a>
           <a
             className="royal-menu-link royal-menu-link-primary"
             href="/signup"
             onClick={onNavigate}
           >
-            Sign Up
+            {t("nav.signup")}
           </a>
         </>
       )}
+      <span className="royal-menu-lang">
+        <LanguageSwitch />
+      </span>
     </div>
   );
 }

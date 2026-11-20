@@ -6,15 +6,18 @@
 // any other feature.
 "use client";
 
+import { useLanguage } from "./LanguageProvider.js";
+
 export default function ReviewSort({ order, onChange }) {
+  const { t } = useLanguage();
   return (
     <div
       className="review-sort"
       role="group"
-      aria-label="Sort the review queue by submission date"
+      aria-label={t("sort.aria")}
     >
       <span className="review-sort-label">
-        Sort by date — តម្រៀបតាមកាលបរិច្ឆេទ
+        {t("sort.label")}
       </span>
       <button
         type="button"
@@ -24,7 +27,7 @@ export default function ReviewSort({ order, onChange }) {
         aria-pressed={order === "asc"}
         onClick={() => onChange("asc")}
       >
-        Oldest first — ចាស់ជាងគេមុន
+        {t("sort.oldest")}
       </button>
       <button
         type="button"
@@ -34,7 +37,7 @@ export default function ReviewSort({ order, onChange }) {
         aria-pressed={order === "desc"}
         onClick={() => onChange("desc")}
       >
-        Newest first — ថ្មីបំផុតមុន
+        {t("sort.newest")}
       </button>
     </div>
   );

@@ -8,9 +8,11 @@ import Header from "../../components/Header.js";
 import Footer from "../../components/Footer.js";
 import { createBrowserSupabaseClient } from "../../lib/supabase-browser.js";
 import ContributeForm from "../../components/ContributeForm.js";
+import { useLanguage } from "../../components/LanguageProvider.js";
 import "../../components/contribute.css";
 
 export default function ContributePage() {
+  const { t } = useLanguage();
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -44,14 +46,14 @@ export default function ContributePage() {
     <>
       <Header loading={loading} user={user} onLogout={handleLogout} />
       <main id="main" className="contribute-wrap">
-        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-        <h1 className="contribute-title">Contribute an Entry</h1>
+        <p className="contribute-kicker">{t("common.kicker")}</p>
+        <h1 className="contribute-title">{t("contribute.title")}</h1>
         <p className="contribute-subtitle">
-          Add a ritual, tradition, or memory you know to {collection.name}.
+          {t("contribute.subtitle", { name: collection.name })}
         </p>
         <div className="contribute-head-rule" aria-hidden="true" />
       {loading ? (
-        <p className="contribute-status">Checking your session…</p>
+        <p className="contribute-status">{t("contribute.checkingSession")}</p>
       ) : user ? (
         <div className="contribute-card">
           <ContributeForm />
@@ -59,23 +61,21 @@ export default function ContributePage() {
       ) : (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            Contributions come from logged-in users so the archive always knows
-            who shared what. Log in or create an account, then come back here
-            to add an entry.
+            {t("contribute.gateText")}
           </p>
           <div className="contribute-gate-links">
             <a className="contribute-gate-link" href="/login">
-              Log In
+              {t("nav.login")}
             </a>
             <a className="contribute-gate-link" href="/signup">
-              Sign Up
+              {t("nav.signup")}
             </a>
           </div>
         </div>
       )}
 
         <a className="contribute-home-link" href="/">
-          ← Back to the archive
+          {t("common.backToArchive")}
         </a>
       </main>
       <Footer />

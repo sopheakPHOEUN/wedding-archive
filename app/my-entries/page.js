@@ -16,18 +16,27 @@ import React from "react";
 import Header from "../../components/Header.js";
 import Footer from "../../components/Footer.js";
 import { createBrowserSupabaseClient } from "../../lib/supabase-browser.js";
+import { useLanguage } from "../../components/LanguageProvider.js";
 import "../../components/contribute.css";
 import "../../components/my-entries.css";
 
-// The bilingual status labels shown next to each entry. Khmer is first-class
-// content here, so it is never stripped or transliterated.
+// The bilingual status labels shown next to each entry, one set per language.
+// Khmer is first-class content here, so it is never stripped or transliterated.
 const STATUS_LABELS = {
-  pending: "Pending — កំពុងរង់ចាំការពិនិត្យ",
-  published: "Published — បានផ្សព្វផ្សាយ",
-  returned: "Returned — ត្រូវការកែសម្រួល",
+  en: {
+    pending: "Pending",
+    published: "Published",
+    returned: "Returned",
+  },
+  km: {
+    pending: "កំពុងរង់ចាំការពិនិត្យ",
+    published: "បានផ្សព្វផ្សាយ",
+    returned: "ត្រូវការកែសម្រួល",
+  },
 };
 
 export default function MyEntriesPage() {
+  const { t, lang } = useLanguage();
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [entries, setEntries] = React.useState([]);
@@ -103,28 +112,26 @@ export default function MyEntriesPage() {
     <>
       <Header loading={loading} user={user} onLogout={handleLogout} />
       <main id="main" className="contribute-wrap">
-        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-        <h1 className="contribute-title">My Entries</h1>
+        <p className="contribute-kicker">{t("common.kicker")}</p>
+        <h1 className="contribute-title">{t("my.title")}</h1>
         <p className="contribute-subtitle">
-          The entries you contributed, and where each one stands in the review
-          process.
+          {t("my.subtitle")}
         </p>
         <div className="contribute-head-rule" aria-hidden="true" />
 
       {loading ? (
-        <p className="contribute-status">Checking your session…</p>
+        <p className="contribute-status">{t("contribute.checkingSession")}</p>
       ) : !user ? (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            This page is for logged-in contributors. Log in or create an
-            account, then come back here to track your entries.
+            {t("my.gateText")}
           </p>
           <div className="contribute-gate-links">
             <a className="contribute-gate-link" href="/login">
-              Log In
+              {t("nav.login")}
             </a>
             <a className="contribute-gate-link" href="/signup">
-              Sign Up
+              {t("nav.signup")}
             </a>
           </div>
         </div>
@@ -134,33 +141,32 @@ export default function MyEntriesPage() {
               the list is empty or already has pending/published rows. */}
           <div className="contribute-gate-links my-entries-add">
             <a className="contribute-gate-link" href="/contribute">
-              + Add New Entry
+              {t("my.addNew")}
             </a>
           </div>
 
           {loadingEntries ? (
-            <p className="contribute-status">Loading your entries…</p>
+            <p className="contribute-status">{t("my.loading")}</p>
           ) : error ? (
             <div className="contribute-card">
-              <p className="contribute-gate-text">{error}</p>
+              <p className="contribute-gate-text">{t("my.loadError")}</p>
             </div>
           ) : entries.length === 0 ? (
             <div className="contribute-card">
               <p className="contribute-gate-text">
-                You haven't contributed any entries yet. Once you do, they will
-                appear here with their review status.
+                {t("my.empty")}
               </p>
             </div>
           ) : (
             <ul className="my-entries-list">
               {entries.map((entry) => {
                 const status = entry.status || "pending";
-                const label = STATUS_LABELS[status] || status;
+                const label = STATUS_LABELS[lang][status] || status;
                 return (
                   <li key={entry.id} className="my-entries-item">
                     <div className="my-entries-titles">
                       <p className="my-entries-title">
-                        {entry.title_khmer || "Untitled"}
+                        {entry.title_khmer || t("common.untitled")}
                       </p>
                       {entry.title_english ? (
                         <p className="my-entries-title-english">
@@ -183,7 +189,7 @@ export default function MyEntriesPage() {
                           className="my-entries-edit"
                           href={`/entries/${entry.id}/edit`}
                         >
-                          Edit Entry
+                          {t("my.edit")}
                         </a>
                       ) : null}
                     </div>
@@ -196,7 +202,7 @@ export default function MyEntriesPage() {
       )}
 
         <a className="contribute-home-link" href="/">
-          ← Back to the archive
+          {t("common.backToArchive")}
         </a>
       </main>
       <Footer />

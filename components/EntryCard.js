@@ -7,8 +7,11 @@
 // Matched search terms arrive already highlighted by page.js, so titles and
 // description are rendered through dangerouslySetInnerHTML.
 // Styles live in components/archive.css.
+"use client";
+
 import Link from "next/link";
 import Ornament from "./Ornament.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./archive.css";
 
 export default function EntryCard({
@@ -24,6 +27,7 @@ export default function EntryCard({
   featured = false,
   matchLabel = "",
 }) {
+  const { t } = useLanguage();
   // An entry with no description yet still renders; we just skip that paragraph.
   const hasDescription =
     typeof description === "string" && description.trim().length > 0;
@@ -53,7 +57,7 @@ export default function EntryCard({
           </div>
           <div className="entry-card-featured-body">
             <p className="entry-card-kicker">
-              FEATURED ENTRY <span>№ {number}</span>
+              {t("card.featuredEntry")} <span>№ {number}</span>
             </p>
             {matchLabel ? (
               <p className="entry-card-match">{matchLabel}</p>
@@ -78,7 +82,7 @@ export default function EntryCard({
             ) : null}
             <Ornament />
             <p className="entry-card-meta">
-              <span className="entry-card-meta-label">Contributed by</span>
+              <span className="entry-card-meta-label">{t("card.contributedBy")}</span>
               <span className="entry-card-meta-name">{contributor}</span>
               {place ? (
                 <span className="entry-card-meta-place">
@@ -89,7 +93,7 @@ export default function EntryCard({
                 </span>
               ) : null}
             </p>
-            <p className="entry-card-more">View entry →</p>
+            <p className="entry-card-more">{t("card.viewEntry")}</p>
           </div>
         </article>
       </Link>
@@ -114,7 +118,7 @@ export default function EntryCard({
 
         <div className="entry-card-body">
           <p className="entry-card-kicker">
-            ARCHIVE ENTRY <span>№ {number}</span>
+            {t("card.archiveEntry")} <span>№ {number}</span>
           </p>
           {matchLabel ? (
             <p className="entry-card-match">{matchLabel}</p>
@@ -138,7 +142,7 @@ export default function EntryCard({
             />
           ) : null}
           <p className="entry-card-meta">
-            <span className="entry-card-meta-label">Contributed by</span>
+            <span className="entry-card-meta-label">{t("card.contributedBy")}</span>
             <span className="entry-card-meta-name">{contributor}</span>
             {place ? (
               <span className="entry-card-meta-place">
@@ -149,7 +153,7 @@ export default function EntryCard({
               </span>
             ) : null}
           </p>
-          <p className="entry-card-more">View entry →</p>
+          <p className="entry-card-more">{t("card.viewEntry")}</p>
         </div>
       </article>
     </Link>

@@ -9,30 +9,42 @@ import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 import { submitEntry } from "../lib/contribute.js";
 import FormField from "./FormField.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./contribute.css";
 
 const TEXT_FIELDS = [
   {
     key: "title_khmer",
-    label: "Khmer title",
+    labelKey: "form.field.title_khmer",
     khmer: true,
     placeholder: "ពិធីសែនក្រុងពាលី",
   },
   {
     key: "title_english",
-    label: "English title",
+    labelKey: "form.field.title_english",
     placeholder: "Krong Pali Ceremony",
   },
   {
     key: "description",
-    label: "Description",
+    labelKey: "form.field.description",
+    placeholderKey: "form.ph.description",
     textarea: true,
-    placeholder: "What happens in this ritual, and why does it matter?",
   },
-  { key: "contributor", label: "Contributor", placeholder: "Grandma Srey Nang" },
+  {
+    key: "description_khmer",
+    labelKey: "form.field.description_khmer",
+    placeholderKey: "form.ph.description_khmer",
+    textarea: true,
+    khmer: true,
+  },
+  {
+    key: "contributor",
+    labelKey: "form.field.contributor",
+    placeholder: "Grandma Srey Nang",
+  },
   {
     key: "place",
-    label: "Place",
+    labelKey: "form.field.place",
     placeholder: "Kompong Cham Province, Cambodia",
   },
 ];
@@ -41,16 +53,20 @@ export default function ContributeForm({
   initialValues = {},
   initialImage = "",
   onSubmit,
-  submitLabel = "Submit Entry",
-  submittingLabel = "Uploading and saving…",
+  submitLabel,
+  submittingLabel,
   optionalPhoto = false,
 }) {
   const router = useRouter();
+  const { t, tError } = useLanguage();
+  const finalSubmitLabel = submitLabel || t("form.submitEntry");
+  const finalSubmittingLabel = submittingLabel || t("form.submitting");
   const currentImage = initialValues.image_url || initialImage || "";
   const [values, setValues] = React.useState({
     title_khmer: initialValues.title_khmer || "",
     title_english: initialValues.title_english || "",
     description: initialValues.description || "",
+    description_khmer: initialValues.description_khmer || "",
     contributor: initialValues.contributor || "",
     place: initialValues.place || "",
     image_url: currentImage,
@@ -93,6 +109,7 @@ export default function ContributeForm({
       "title_khmer",
       "title_english",
       "description",
+      "description_khmer",
       "contributor",
       "place",
       "image",
@@ -121,17 +138,17 @@ export default function ContributeForm({
           return;
         }
         setSuccessMessage(
-          "Your contribution has been submitted and is waiting for review. It will appear in the public archive after approval."
+          t("form.success")
         );
         return;
       }
       const errors = result.fieldErrors || {};
       setFieldErrors(errors);
       focusFirstError(errors);
-      if (result.message) setGeneralError(result.message);
+      if (result.message) setGeneralError(tError(result.message));
     } catch (error) {
       console.error("Entry form error:", error);
-      setGeneralError("Something went wrong. Please try again.");
+      setGeneralError(t("form.genericError"));
     } finally {
       setSubmitting(false);
     }
@@ -153,20 +170,21 @@ export default function ContributeForm({
         </p>
       ) : (
         <>
-          {TEXT_FIELDS.map(({ key, label, placeholder, textarea, khmer }) => (
+          {TEXT_FIELDS.map(
+            ({ key, labelKey, placeholder, placeholderKey, textarea, khmer }) => (
             <FormField
               key={key}
               id={key}
-              label={label}
+              label={t(labelKey)}
               required
-              error={error(key)}
+              error={tError(error(key))}
             >
               {textarea ? (
                 <textarea
                   id={key}
                   className="form-textarea"
                   rows={6}
-                  placeholder={placeholder}
+                  placeholder={placeholderKey ? t(placeholderKey) : placeholder}
                   value={values[key]}
                   onChange={update(key)}
                   disabled={submitting}
@@ -176,32 +194,33 @@ export default function ContributeForm({
                   id={key}
                   className={khmer ? "form-input form-input-khmer" : "form-input"}
                   type="text"
-                  placeholder={placeholder}
+                  placeholder={placeholderKey ? t(placeholderKey) : placeholder}
                   value={values[key]}
                   onChange={update(key)}
                   disabled={submitting}
                 />
               )}
             </FormField>
-          ))}
+          )
+          )}
 
           <FormField
             id="image_file"
-            label="Photo"
+            label={t("form.photo")}
             required={!optionalPhoto}
-            hint="Pick one: upload a photo from your device, or paste a full http(s) link to a photo. Uploaded photos are stored in our photos bucket."
-            error={error("image")}
+            hint={t("form.photoHint")}
+            error={tError(error("image"))}
           >
             {currentImage && !imageFile ? (
               <img
                 src={currentImage}
-                alt="Current photo"
+                alt={t("form.currentPhoto")}
                 className="form-current-photo"
               />
             ) : null}
             {optionalPhoto ? (
               <p className="form-hint">
-                Leave the photo as-is to keep the current one.
+                {t("form.keepPhoto")}
               </p>
             ) : null}
             <input
@@ -212,7 +231,7 @@ export default function ContributeForm({
               onChange={updateImageFile}
               disabled={submitting}
             />
-            <p className="form-hint">or</p>
+            <p className="form-hint">{t("form.or")}</p>
             <input
               id="image_url"
               className="form-input"
@@ -231,7 +250,7 @@ export default function ContributeForm({
             disabled={submitting}
             aria-busy={submitting}
           >
-            {submitting ? submittingLabel : submitLabel}
+            {submitting ? finalSubmittingLabel : finalSubmitLabel}
           </button>
         </>
       )}

@@ -14,11 +14,13 @@ import Ornament from "../../../components/Ornament.js";
 import Lightbox from "../../../components/Lightbox.js";
 import { createBrowserSupabaseClient } from "../../../lib/supabase-browser.js";
 import { deleteEntry } from "../../../lib/entries.js";
+import { useLanguage } from "../../../components/LanguageProvider.js";
 import "../../../components/detail.css";
 
 export default function EntryDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t, lang } = useLanguage();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const [entry, setEntry] = React.useState(null);
@@ -30,7 +32,7 @@ export default function EntryDetailPage() {
   // If the visitor arrived from a search, guide them back to it.
   const [backInfo, setBackInfo] = React.useState({
     href: "/",
-    label: "Back to the archive",
+    fromSearch: false,
   });
 
   React.useEffect(() => {
@@ -39,7 +41,7 @@ export default function EntryDetailPage() {
       if (saved) {
         setBackInfo({
           href: `/?q=${encodeURIComponent(saved)}#collection`,
-          label: "Back to results",
+          fromSearch: true,
         });
       }
     } catch (error) {
@@ -101,10 +103,19 @@ export default function EntryDetailPage() {
   const isOwner = Boolean(user && entry && entry.owner === user.id);
   const hasImage =
     typeof entry?.image === "string" && entry.image.trim().length > 0;
+  // Show the description in the active language, falling back to the other
+  // language so the plate is never left empty.
+  const descriptionInLang =
+    lang === "km" && (entry?.description_khmer || "").trim()
+      ? entry.description_khmer
+      : entry?.description || entry?.description_khmer || "";
+  const backLabel = backInfo.fromSearch
+    ? t("entry.backToResults")
+    : t("entry.backToArchive");
 
   const handleDelete = async () => {
     if (deleting) return;
-    if (!window.confirm("Delete this entry? This cannot be undone.")) return;
+    if (!window.confirm(t("entry.confirmDelete"))) return;
     setDeleting(true);
     setMessage("");
     try {
@@ -114,10 +125,10 @@ export default function EntryDetailPage() {
         router.push("/");
         return;
       }
-      setMessage(result.message || "That change wasn't saved");
+      setMessage(result.message || t("entry.changeNotSaved"));
     } catch (error) {
       console.error("Delete error:", error);
-      setMessage("That change wasn't saved");
+      setMessage(t("entry.changeNotSaved"));
     } finally {
       setDeleting(false);
     }
@@ -129,13 +140,13 @@ export default function EntryDetailPage() {
       <main id="main" className="detail-wrap">
         <div className="detail-back-bar">
           <a className="detail-back" href={backInfo.href}>
-            ← {backInfo.label}
+            ← {backLabel}
           </a>
         </div>
-        <p className="detail-kicker">KHMER LIVING ARCHIVE</p>
+        <p className="detail-kicker">{t("common.kicker")}</p>
 
         {loading ? (
-          <p className="detail-status">Loading entry…</p>
+          <p className="detail-status">{t("entry.loading")}</p>
         ) : !entry ? (
           <div className="detail-card">
             <p
@@ -145,7 +156,7 @@ export default function EntryDetailPage() {
                 color: "var(--brown-soft)",
               }}
             >
-              We couldn't find that entry. It may have been deleted.
+              {t("entry.notFound")}
             </p>
           </div>
         ) : (
@@ -165,7 +176,7 @@ export default function EntryDetailPage() {
                     type="button"
                     className="detail-image-btn"
                     onClick={() => setViewImage(true)}
-                    aria-label={`View photo full size`}
+                    aria-label={t("entry.viewFullSize")}
                   >
                     <img
                       className="detail-image"
@@ -173,10 +184,10 @@ export default function EntryDetailPage() {
                       alt={
                         entry.title_english ||
                         entry.title_khmer ||
-                        "Entry photo"
+                        t("common.entryPhoto")
                       }
                     />
-                    <span className="detail-zoom">View full size</span>
+                    <span className="detail-zoom">{t("entry.viewFullSize")}</span>
                   </button>
                 ) : (
                   <div className="detail-placeholder" aria-hidden="true">
@@ -186,23 +197,23 @@ export default function EntryDetailPage() {
               </div>
 
               <div>
-                <p className="detail-description">{entry.description || ""}</p>
+                <p className="detail-description">{descriptionInLang}</p>
                 <Ornament />
                 <dl className="detail-meta">
                   <div className="detail-meta-row">
-                    <dt>Contributor</dt>
-                    <dd>{entry.contributor || "Not provided"}</dd>
+                    <dt>{t("entry.contributor")}</dt>
+                    <dd>{entry.contributor || t("entry.notProvided")}</dd>
                   </div>
                   <div className="detail-meta-row">
-                    <dt>Place</dt>
-                    <dd>{entry.place || "Not provided"}</dd>
+                    <dt>{t("entry.place")}</dt>
+                    <dd>{entry.place || t("entry.notProvided")}</dd>
                   </div>
                 </dl>
 
                 {isOwner ? (
                   <div className="detail-actions">
                     <a className="detail-edit" href={`/entries/${id}/edit`}>
-                      Edit entry
+                      {t("entry.editEntry")}
                     </a>
                     <button
                       type="button"
@@ -210,11 +221,10 @@ export default function EntryDetailPage() {
                       onClick={handleDelete}
                       disabled={deleting}
                     >
-                      {deleting ? "Deleting…" : "Delete"}
+                      {deleting ? t("entry.deleting") : t("entry.delete")}
                     </button>
                     <p className="detail-owner-note">
-                      You contributed this entry. Edits send it back to the
-                      review queue.
+                      {t("entry.ownerNote")}
                     </p>
                   </div>
                 ) : null}
@@ -230,7 +240,7 @@ export default function EntryDetailPage() {
         )}
 
         <a className="detail-back detail-back-bottom" href={backInfo.href}>
-          ← {backInfo.label}
+          ← {backLabel}
         </a>
       </main>
 

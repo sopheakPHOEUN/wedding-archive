@@ -15,6 +15,8 @@
 // and only removes an entry from the list after the RPC came back error-free
 // with exactly true.
 import { createClient } from "../../lib/supabase.js";
+import { cookies } from "next/headers";
+import { resolveLang, translate } from "../../lib/i18n.js";
 import Footer from "../../components/Footer.js";
 import SessionHeader from "../../components/SessionHeader.js";
 import ReviewQueue from "../../components/ReviewQueue.js";
@@ -27,6 +29,8 @@ import "../../components/archive.css";
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {
+  const lang = resolveLang((await cookies()).get("kla-lang")?.value);
+  const t = (key, vars) => translate(lang, key, vars);
   const supabase = await createClient();
 
   let isReviewer = false;
@@ -45,19 +49,14 @@ export default async function ReviewPage() {
     console.error("Error checking review access:", error);
   }
 
-  // Non-reviewers see nothing but the bilingual Access Denied message.
+  // Non-reviewers see only the Access Denied message in the active language.
   if (!isReviewer) {
     return (
       <>
         <SessionHeader />
         <main id="main" className="contribute-wrap">
           <div className="contribute-card">
-            <p className="contribute-gate-text">
-              Access Denied — this page is for authorized reviewers only.
-            </p>
-            <p className="contribute-gate-text">
-              ការចូលប្រើត្រូវបានបដិសេធ — ទំព័រនេះសម្រាប់តែអ្នកពិនិត្យដែលមានការអនុញ្ញាតប៉ុណ្ណោះ។
-            </p>
+            <p className="contribute-gate-text">{t("review.accessDenied")}</p>
           </div>
         </main>
         <Footer />
@@ -74,7 +73,7 @@ export default async function ReviewPage() {
     const { data, error } = await supabase
       .from("entries")
       .select(
-        "id, title_khmer, title_english, description, image, place, created_at"
+        "id, title_khmer, title_english, description, description_khmer, image, place, created_at"
       )
       .eq("status", "pending")
       .order("created_at", { ascending: true });
@@ -82,26 +81,24 @@ export default async function ReviewPage() {
     entries = data || [];
   } catch (error) {
     console.error("Error fetching pending entries:", error);
-    loadError =
-      "We couldn't load the review queue. Please try again. — យើងមិនអាចផ្ទុកជួរពិនិត្យបានទេ។ សូមព្យាយាមម្តងទៀត។";
+    loadError = t("review.loadError");
   }
 
   return (
     <>
       <SessionHeader />
       <main id="main" className="contribute-wrap">
-        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-        <h1 className="contribute-title">Review Queue</h1>
+        <p className="contribute-kicker">{t("common.kicker")}</p>
+        <h1 className="contribute-title">{t("review.title")}</h1>
         <p className="contribute-subtitle">
-          Entries waiting for review. Publishing adds them to the public archive;
-          returning sends them back to the contributor for changes.
+          {t("review.subtitle")}
         </p>
         <div className="contribute-head-rule" aria-hidden="true" />
 
         <ReviewQueue entries={entries} loadError={loadError} />
 
         <a className="contribute-home-link" href="/">
-          ← Back to the archive
+          {t("common.backToArchive")}
         </a>
       </main>
       <Footer />

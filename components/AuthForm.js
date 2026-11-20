@@ -4,14 +4,14 @@
 "use client";
 
 import React from "react";
+import { useLanguage } from "./LanguageProvider.js";
 import "./auth.css";
 
 export default function AuthForm({ type, onSubmit, error, isLoading }) {
+  const { t } = useLanguage();
   const isSignup = type === "signup";
-  const buttonText = isSignup ? "Sign Up" : "Log In";
-  const linkText = isSignup
-    ? "Already have an account? Log in"
-    : "Don't have an account? Sign up";
+  const buttonText = isSignup ? t("nav.signup") : t("nav.login");
+  const linkText = isSignup ? t("auth.switchToLogin") : t("auth.switchToSignup");
   const linkHref = isSignup ? "/login" : "/signup";
 
   const handleSubmit = (e) => {
@@ -35,8 +35,8 @@ export default function AuthForm({ type, onSubmit, error, isLoading }) {
           className="auth-input"
           type="email"
           name="email"
-          placeholder="Email"
-          aria-label="Email address"
+          placeholder={t("auth.email")}
+          aria-label={t("auth.emailAria")}
           autoComplete={isSignup ? "email" : "username"}
           autoCapitalize="none"
           spellCheck="false"
@@ -51,8 +51,8 @@ export default function AuthForm({ type, onSubmit, error, isLoading }) {
           className="auth-input"
           type="password"
           name="password"
-          placeholder="Password"
-          aria-label="Password"
+          placeholder={t("auth.password")}
+          aria-label={t("auth.passwordAria")}
           autoComplete={isSignup ? "new-password" : "current-password"}
           minLength={6}
           required
@@ -61,7 +61,7 @@ export default function AuthForm({ type, onSubmit, error, isLoading }) {
       </div>
 
       <button type="submit" className="auth-button" disabled={isLoading}>
-        {isLoading ? "Loading…" : buttonText}
+        {isLoading ? t("auth.loading") : buttonText}
       </button>
 
       <p className="auth-switch">

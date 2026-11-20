@@ -11,6 +11,8 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import collection from "../collection.config.js";
 import HeaderMenu from "./HeaderMenu.js";
+import LanguageSwitch from "./LanguageSwitch.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./archive.css";
 
 // Which nav item is the current page, so we can mark it active for clarity
@@ -28,6 +30,7 @@ const activeKeyOf = (pathname) => {
 
 export default function Header({ loading, user, isReviewer, onLogout }) {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const active = activeKeyOf(pathname);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const closeMenu = () => setMenuOpen(false);
@@ -62,13 +65,13 @@ export default function Header({ loading, user, isReviewer, onLogout }) {
         </span>
       </a>
 
-      <nav className="royal-nav" aria-label="Main">
+      <nav className="royal-nav" aria-label={t("header.mainAria")}>
         <a
           className={`royal-nav-link ${isActive("home")}`}
           href="/"
           aria-current={active === "home" ? "page" : undefined}
         >
-          Home
+          {t("nav.home")}
         </a>
         {!loading && user ? (
           <>
@@ -77,7 +80,7 @@ export default function Header({ loading, user, isReviewer, onLogout }) {
               href="/my-entries"
               aria-current={active === "my-entries" ? "page" : undefined}
             >
-              My Entries
+              {t("nav.myEntries")}
             </a>
             {isReviewer ? (
               <a
@@ -85,7 +88,7 @@ export default function Header({ loading, user, isReviewer, onLogout }) {
                 href="/review"
                 aria-current={active === "review" ? "page" : undefined}
               >
-                Review
+                {t("nav.review")}
               </a>
             ) : null}
             <a
@@ -95,29 +98,30 @@ export default function Header({ loading, user, isReviewer, onLogout }) {
               href="/contribute"
               aria-current={active === "contribute" ? "page" : undefined}
             >
-              Contribute
+              {t("nav.contribute")}
             </a>
           </>
         ) : null}
       </nav>
 
       <div className="royal-auth">
+        <LanguageSwitch />
         {!loading && user ? (
           <>
             <span className="royal-user" title={user.email}>
               {user.email}
             </span>
             <button type="button" className="royal-logout" onClick={onLogout}>
-              Logout
+              {t("nav.logout")}
             </button>
           </>
         ) : !loading ? (
           <>
             <a className="royal-link" href="/login">
-              Log In
+              {t("nav.login")}
             </a>
             <a className="royal-link royal-link-primary" href="/signup">
-              Sign Up
+              {t("nav.signup")}
             </a>
           </>
         ) : null}
@@ -127,7 +131,7 @@ export default function Header({ loading, user, isReviewer, onLogout }) {
         type="button"
         className="royal-menu-toggle"
         aria-expanded={menuOpen}
-        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-label={menuOpen ? t("header.closeMenu") : t("header.openMenu")}
         onClick={() => setMenuOpen((open) => !open)}
       >
         <span />

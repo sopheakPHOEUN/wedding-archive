@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "../../lib/supabase-browser.js";
 import AuthLayout from "../../components/AuthLayout.js";
 import AuthForm from "../../components/AuthForm.js";
+import { useLanguage } from "../../components/LanguageProvider.js";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   
@@ -30,23 +32,23 @@ export default function SignupPage() {
       if (error) {
         // Show user-friendly message for password policy errors, generic for others
         if (error.message.includes("Password should contain at least one character of each")) {
-          setError("Password must contain at least a letter and number");
+          setError(t("auth.passwordPolicy"));
         } else {
-          setError("Invalid email or password");
+          setError(t("auth.invalid"));
         }
       } else {
         // Signup successful - redirect to home page
         router.push("/");
       }
     } catch (err) {
-      setError("Invalid email or password");
+      setError(t("auth.invalid"));
     } finally {
       setIsLoading(false);
     }
   };
   
   return (
-    <AuthLayout title="Create an account to contribute">
+    <AuthLayout title={t("auth.signupTitle")}>
       <AuthForm
         type="signup"
         onSubmit={handleSignup}

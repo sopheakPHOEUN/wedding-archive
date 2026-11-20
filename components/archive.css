@@ -238,6 +238,42 @@
   color: #ffffff;
 }
 
+/* Language switch pill — the same quiet gold outline as the logout button. */
+.royal-lang {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold-soft);
+  background-color: transparent;
+  border: 1px solid rgba(184, 149, 85, 0.55);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.royal-lang:hover {
+  background-color: rgba(184, 149, 85, 0.18);
+  color: #ffffff;
+}
+
+/* In the mobile menu panel the pill needs a little breathing room. */
+.royal-menu-lang {
+  margin-top: 8px;
+}
+
+/* On the login/sign-up pages the switch floats over the split layout.
+   Absolute positioning keeps it out of .auth-page's two-column grid. */
+.auth-lang {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+}
+
+.auth-lang .royal-lang {
+  background-color: rgba(74, 37, 37, 0.35);
+}
+
 /* ================ Mobile menu ================ */
 
 .royal-menu-toggle {

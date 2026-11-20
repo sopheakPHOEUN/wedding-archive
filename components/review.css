@@ -100,6 +100,13 @@
   color: var(--brown);
 }
 
+/* When a reviewer sees both descriptions, the Khmer one sits below the English
+   one with a touch more breathing room and a softer tone. */
+.review-item-description-khmer {
+  margin-top: 10px;
+  color: var(--brown-soft);
+}
+
 .review-item-meta {
   margin: 14px 0 0;
   font-family: var(--font-sans);

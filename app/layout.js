@@ -11,17 +11,34 @@
 // falls back to Noto Sans Khmer, italic English subtitles use Cormorant
 // Garamond, and Latin UI/body text keeps Inter. Noto Sans Khmer is last in each
 // stack so Khmer glyphs always render while Latin text keeps its typeface.
+//
+// Bilingual support: the visitor's language comes from the "kla-lang" cookie
+// (written by LanguageSwitch and read here on every request). The <html lang>
+// and the LanguageProvider's initial state both come from it, so the server
+// render and the first client render always agree.
+import { cookies } from "next/headers";
 import "./../components/theme.css";
 import collection from "../collection.config.js";
+import LanguageProvider from "../components/LanguageProvider.js";
+import SkipLink from "../components/SkipLink.js";
+import { resolveLang } from "../lib/i18n.js";
 
 export const metadata = {
   title: `${collection.name} — Khmer Living Archive`,
   description: collection.description,
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  let lang = "en";
+  try {
+    const cookieStore = await cookies();
+    lang = resolveLang(cookieStore.get("kla-lang")?.value);
+  } catch (error) {
+    // If cookies are unavailable in the current environment, stay English.
+  }
+
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -43,10 +60,10 @@ export default function RootLayout({ children }) {
           minHeight: "100vh",
         }}
       >
-        <a className="skip-link" href="#main">
-          Skip to content
-        </a>
-        {children}
+        <LanguageProvider initialLang={lang}>
+          <SkipLink />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

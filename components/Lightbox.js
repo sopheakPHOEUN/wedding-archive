@@ -6,8 +6,10 @@
 "use client";
 
 import React from "react";
+import { useLanguage } from "./LanguageProvider.js";
 
 export default function Lightbox({ open, image, alt, caption, onClose }) {
+  const { t } = useLanguage();
   const closeRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -31,7 +33,7 @@ export default function Lightbox({ open, image, alt, caption, onClose }) {
       className="lightbox"
       role="dialog"
       aria-modal="true"
-      aria-label={alt || "Photo"}
+      aria-label={alt || t("lightbox.photo")}
       onClick={onClose}
     >
       <div
@@ -46,7 +48,7 @@ export default function Lightbox({ open, image, alt, caption, onClose }) {
         type="button"
         className="lightbox-close"
         onClick={onClose}
-        aria-label="Close image viewer"
+        aria-label={t("lightbox.close")}
       >
         ×
       </button>

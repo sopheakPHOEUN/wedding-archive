@@ -6,6 +6,7 @@
    Palette and type tokens come from components/theme.css. */
 
 .auth-page {
+  position: relative;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;

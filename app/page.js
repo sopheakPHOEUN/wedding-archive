@@ -22,20 +22,48 @@ import Reveal from "../components/Reveal.js";
 import Lightbox from "../components/Lightbox.js";
 import AboutSlider from "../components/AboutSlider.js";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
+import {
+  fetchArchiveDescription,
+  fallbackArchiveDescription,
+} from "../lib/archive.js";
+import { useLanguage } from "../components/LanguageProvider.js";
 import { searchEntries, highlightText } from "../lib/search.js";
 import "../components/archive.css";
 
 // Render one search result into the shared card. The search engine reports
 // which terms matched in which field (lib/search.js), so highlighting only
 // marks words that genuinely occur in the title/description being shown, and
-// the matchLabel tells the visitor why this result appeared.
-const cardProps = (result) => {
+// the matchLabel tells the visitor why this result appeared (translated).
+const cardProps = (result, t, lang) => {
   const entry = result.entry;
   const fieldTerms = result.fieldTerms || {};
+  let matchLabel = "";
+  if (result.tier === "phrase") {
+    matchLabel = t("search.exactPhrase");
+  } else if (result.tier === "all") {
+    matchLabel = t("search.allTerms", {
+      a: result.matchedCount,
+      b: result.termCount,
+    });
+  } else if (result.tier === "partial") {
+    matchLabel = t("search.partial", {
+      a: result.matchedCount,
+      b: result.termCount,
+    });
+  }
+  // Show the description in the active language: Khmer when the site is in
+  // Khmer and the entry has one, otherwise the English description (or the
+  // other language as a fallback so a card is never left empty).
+  const useKhmer = lang === "km" && (entry.description_khmer || "").trim();
+  const descriptionText = useKhmer
+    ? entry.description_khmer
+    : entry.description || entry.description_khmer || "";
+  const descriptionTerms =
+    fieldTerms && (fieldTerms[useKhmer ? "description_khmer" : "description"] || []);
   return {
     id: entry.id,
     image: entry.image || "",
-    imageAlt: entry.title_english || entry.title_khmer || "Entry photo",
+    imageAlt: entry.title_english || entry.title_khmer || t("common.entryPhoto"),
     title: highlightText(
       entry.title_khmer || entry.titleKhmer || "",
       fieldTerms.title_khmer
@@ -44,14 +72,15 @@ const cardProps = (result) => {
       entry.title_english || entry.titleEnglish || "",
       fieldTerms.title_english
     ),
-    description: highlightText(entry.description || "", fieldTerms.description),
+    description: highlightText(descriptionText, descriptionTerms),
     contributor: entry.contributor || "",
     place: entry.place || "",
-    matchLabel: result.label || "",
+    matchLabel,
   };
 };
 
 export default function Home() {
+  const { t, lang } = useLanguage();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
@@ -59,6 +88,12 @@ export default function Home() {
   const [entries, setEntries] = React.useState([]);
   const [loadingEntries, setLoadingEntries] = React.useState(true);
   const [entriesError, setEntriesError] = React.useState("");
+  // The archive's own description, bilingual (English + Khmer). It is stored in
+  // the Supabase `archive` table and falls back to collection.config.js, so the
+  // page always has text to show.
+  const [archiveDescription, setArchiveDescription] = React.useState(
+    fallbackArchiveDescription()
+  );
   const [heroView, setHeroView] = React.useState(false);
   // True when the static /hero.jpg fails to load, so the hero falls back to
   // the engraved monogram instead of showing a broken image.
@@ -143,6 +178,18 @@ export default function Home() {
     loadEntries();
   }, [loadEntries]);
 
+  // Load the bilingual archive description from Supabase. Until it arrives the
+  // config fallback is already showing, so the swap is seamless.
+  React.useEffect(() => {
+    let cancelled = false;
+    fetchArchiveDescription().then((description) => {
+      if (!cancelled) setArchiveDescription(description);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Restore a search carried over from an entry page ("back to results") or a
   // shared ?q= link, and remember the latest term for that round-trip.
   React.useEffect(() => {
@@ -203,11 +250,18 @@ export default function Home() {
       (entries || [])
         .map((entry) => ({
           src: typeof entry.image === "string" ? entry.image : "",
-          alt: entry.title_khmer || entry.title_english || "Archive photo",
+          alt: entry.title_khmer || entry.title_english || t("common.archivePhoto"),
         }))
         .filter((img) => img.src.trim().length > 0),
-    [entries]
+    [entries, t]
   );
+
+  // Show the archive description in the active language. The Khmer text is
+  // stored in Supabase and falls back to collection.config.js here.
+  const descriptionInLang =
+    lang === "km" && archiveDescription.description_khmer
+      ? archiveDescription.description_khmer
+      : archiveDescription.description;
 
   return (
     <>
@@ -229,10 +283,10 @@ export default function Home() {
                   អាពាហ៍ពិពាហ៍ប្រពៃណីខ្មែរ
                 </p>
                 <h1 className="hero-title">{collection.name}</h1>
-                <p className="hero-sub">{collection.description}</p>
+                <p className="hero-sub">{descriptionInLang}</p>
                 <Ornament />
                 <a className="hero-cta" href="#collection">
-                  Explore the rituals
+                  {t("home.exploreRituals")}
                 </a>
               </Reveal>
             </div>
@@ -245,7 +299,7 @@ export default function Home() {
                       type="button"
                       className="hero-image-btn"
                       onClick={() => setHeroView(true)}
-                      aria-label="View hero image full size"
+                      aria-label={t("home.viewHeroImage")}
                     >
                       <img
                         className="hero-media-img"
@@ -253,7 +307,9 @@ export default function Home() {
                         alt={collection.name}
                         onError={() => setHeroImageError(true)}
                       />
-                      <span className="hero-zoom">View full size</span>
+                      <span className="hero-zoom">
+                        {t("home.viewFullSize")}
+                      </span>
                     </button>
                   ) : (
                     <div className="hero-monogram">
@@ -270,7 +326,7 @@ export default function Home() {
               </div>
             </Reveal>
           </div>
-          <div className="hero-scroll">Scroll</div>
+          <div className="hero-scroll">{t("home.scroll")}</div>
         </section>
 
         {/* ============ About the collection ============ */}
@@ -282,19 +338,17 @@ export default function Home() {
 
             <Reveal delay={130}>
               <div className="about-copy">
-                <p className="section-eyebrow">The Collection</p>
-                <h2 className="section-title">
-                  A record of living Khmer tradition
-                </h2>
-                <p className="section-lede">{collection.description}</p>
+                <p className="section-eyebrow">{t("home.aboutEyebrow")}</p>
+                <h2 className="section-title">{t("home.aboutTitle")}</h2>
+                <p className="section-lede">{descriptionInLang}</p>
 
                 <div className="about-note">
                   <p className="about-note-label">
-                    Knowledge gathered from
+                    {t("home.knowledgeGatheredFrom")}
                   </p>
                   <p className="about-note-text">{collection.source}</p>
                   <p className="about-credit">
-                    Curated by{" "}
+                    {t("home.curatedBy")}{" "}
                     <strong style={{ color: "#4a2525" }}>
                       {collection.curator}
                     </strong>
@@ -309,8 +363,8 @@ export default function Home() {
         <section id="collection" className="collection">
           <div className="collection-head">
             <Reveal>
-              <p className="section-eyebrow">The Rituals</p>
-              <h2 className="section-title">Explore the ceremony</h2>
+              <p className="section-eyebrow">{t("home.ritualsEyebrow")}</p>
+              <h2 className="section-title">{t("home.exploreCeremony")}</h2>
               <div className="khmer-rule" aria-hidden="true">
                 <span />
               </div>
@@ -339,17 +393,17 @@ export default function Home() {
               <input
                 className="search-input"
                 type="search"
-                placeholder="Search entries…"
+                placeholder={t("home.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                aria-label="Search the archival entries"
+                aria-label={t("home.searchAria")}
               />
               {searchTerm ? (
                 <button
                   type="button"
                   className="search-clear"
                   onClick={() => handleSearchChange("")}
-                  aria-label="Clear search"
+                  aria-label={t("home.clearSearch")}
                 >
                   ×
                 </button>
@@ -360,23 +414,23 @@ export default function Home() {
           <Reveal>
             <p className="collection-count">
               {loadingEntries
-                ? "Loading the archive…"
-                : `${searchResults.length} entries`}
+                ? t("common.loadingArchive")
+                : t("common.entriesCount", { n: searchResults.length })}
             </p>
           </Reveal>
 
           {entriesError ? (
             <div className="collection-state" role="alert">
               <p className="collection-state-title">
-                Couldn't load the archive
+                {t("home.couldNotLoad")}
               </p>
-              <p className="collection-state-text">{entriesError}</p>
+              <p className="collection-state-text">{t("home.archiveError")}</p>
               <button
                 type="button"
                 className="collection-state-btn"
                 onClick={loadEntries}
               >
-                Retry
+                {t("home.retry")}
               </button>
             </div>
           ) : loadingEntries ? (
@@ -396,7 +450,7 @@ export default function Home() {
             <>
               <Reveal className="gallery-featured">
                 <EntryCard
-                  {...cardProps(firstResult)}
+                  {...cardProps(firstResult, t, lang)}
                   num={1}
                   featured
                 />
@@ -407,7 +461,7 @@ export default function Home() {
                   {restResults.map((result, index) => (
                     <Reveal key={result.entry.id} delay={(index % 3) * 90}>
                       <EntryCard
-                        {...cardProps(result)}
+                        {...cardProps(result, t, lang)}
                         num={index + 2}
                       />
                     </Reveal>
@@ -418,46 +472,42 @@ export default function Home() {
           ) : search.mode === "no-meaningful" ? (
             <div className="collection-state">
               <p className="collection-state-title">
-                Try a more specific search
+                {t("home.tryMoreSpecific")}
               </p>
               <p className="collection-state-text">
-                That search used only common words such as &ldquo;the&rdquo;
-                or &ldquo;with&rdquo;, which don&rsquo;t narrow the results.
-                Try a ritual name, a place, or a special word like
-                &ldquo;ceremony&rdquo;.
+                {t("home.noMeaningful")}
               </p>
               <button
                 type="button"
                 className="collection-state-btn"
                 onClick={() => handleSearchChange("")}
               >
-                Clear search
+                {t("home.clearSearch")}
               </button>
             </div>
           ) : searchTerm ? (
             <div className="collection-state">
               <p className="collection-state-title">
-                No results for "{searchTerm}"
+                {t("home.noResultsTitle", { term: searchTerm })}
               </p>
               <p className="collection-state-text">
-                Try a different word, or clear the search to browse the whole
-                archive.
+                {t("home.noResultsText")}
               </p>
               <button
                 type="button"
                 className="collection-state-btn"
                 onClick={() => handleSearchChange("")}
               >
-                Clear search
+                {t("home.clearSearch")}
               </button>
             </div>
           ) : (
             <div className="collection-state">
               <p className="collection-state-title">
-                No entries in the archive yet
+                {t("home.noEntriesTitle")}
               </p>
               <p className="collection-state-text">
-                As rituals are reviewed and published, they will appear here.
+                {t("home.noEntriesText")}
               </p>
             </div>
           )}

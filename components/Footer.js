@@ -3,12 +3,16 @@
 // gold hairline with a diamond, the curator credit, and the project note.
 // All copy comes from collection.config.js or is the existing footer text, so
 // no new content is introduced. Styles live in components/archive.css.
+"use client";
+
 import React from "react";
 import collection from "../collection.config.js";
 import Ornament from "./Ornament.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./archive.css";
 
 export default function Footer() {
+  const { t } = useLanguage();
   return (
     <footer className="heritage-footer">
       <div className="heritage-footer-top" aria-hidden="true" />
@@ -22,13 +26,9 @@ export default function Footer() {
           <span />
         </div>
         <p className="heritage-footer-credit">
-          Curated by {collection.curator}
+          {t("footer.curatedBy", { name: collection.curator })}
         </p>
-        <p className="heritage-footer-note">
-          Built in ICT 340 — Vibe Coding, American University of Phnom Penh,
-          Fall 2026. This archive is under construction all semester. Come back
-          in December.
-        </p>
+        <p className="heritage-footer-note">{t("footer.note")}</p>
       </div>
     </footer>
   );

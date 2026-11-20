@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "../../lib/supabase-browser.js";
 import AuthLayout from "../../components/AuthLayout.js";
 import AuthForm from "../../components/AuthForm.js";
+import { useLanguage } from "../../components/LanguageProvider.js";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   
@@ -26,14 +28,14 @@ export default function LoginPage() {
       
       if (error) {
         // For security, show only a generic error message
-        setError("Invalid email or password");
+        setError(t("auth.invalid"));
         //console.error("Login error:", error.message);
       } else {
         // Login successful - redirect to home page
         router.push("/");
       }
     } catch (err) {
-      setError("Invalid email or password");
+      setError(t("auth.invalid"));
       console.error("Login error:", err.message);
     } finally {
       setIsLoading(false);
@@ -41,7 +43,7 @@ export default function LoginPage() {
   };
   
   return (
-    <AuthLayout title="Log in to your account" brandImage="/hero.jpg">
+    <AuthLayout title={t("auth.loginTitle")} brandImage="/hero.jpg">
       <AuthForm
         type="login"
         onSubmit={handleLogin}

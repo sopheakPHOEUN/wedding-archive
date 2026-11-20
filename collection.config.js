@@ -13,6 +13,11 @@ const collection = {
   // One sentence: what is this archive, and why does it matter?
   description: "An archive documenting the traditional order and rituals of a Khmer wedding ceremony. ",
 
+  // The same description in Khmer. It is the identity fallback; the live value
+  // is stored in the Supabase `archive` table and read from there at runtime.
+  descriptionKhmer:
+    "បណ្ណសារមួយដែលកត់ត្រាពីលំដាប់ប្រពៃណី និងពិធីផ្សេងៗនៃពិធីរៀបការបែបខ្មែរ។",
+
   // Who is building this archive? Your name, as you want it shown.
   curator: "Phoeun Sopheak",
 

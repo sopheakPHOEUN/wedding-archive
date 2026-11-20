@@ -7,14 +7,22 @@
 // The login page passes brandImage ("/hero.jpg") so the brand panel shows the
 // hero photograph from /public instead of the monogram; the sign-up page omits
 // it and keeps the engraved brand. No feature, function, or data changes.
+"use client";
+
 import React from "react";
 import collection from "../collection.config.js";
 import Ornament from "./Ornament.js";
+import LanguageSwitch from "./LanguageSwitch.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./auth.css";
 
 export default function AuthLayout({ title, children, brandImage }) {
+  const { t } = useLanguage();
   return (
     <div className="auth-page">
+      <div className="auth-lang">
+        <LanguageSwitch />
+      </div>
       <aside className="auth-brand">
         {brandImage ? (
           <img
@@ -48,8 +56,7 @@ export default function AuthLayout({ title, children, brandImage }) {
 
           <footer className="auth-legend">
             <p style={{ margin: 0 }}>
-              Built in ICT 340 — Vibe Coding, American University of Phnom
-              Penh, Fall 2026. Curated by {collection.curator}.
+              {t("auth.legend", { name: collection.curator })}
             </p>
           </footer>
         </div>

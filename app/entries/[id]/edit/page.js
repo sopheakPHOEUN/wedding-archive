@@ -16,10 +16,12 @@ import Footer from "../../../../components/Footer.js";
 import { createBrowserSupabaseClient } from "../../../../lib/supabase-browser.js";
 import { updateEntry } from "../../../../lib/entries.js";
 import ContributeForm from "../../../../components/ContributeForm.js";
+import { useLanguage } from "../../../../components/LanguageProvider.js";
 import "../../../../components/contribute.css";
 
 export default function EditEntryPage() {
   const params = useParams();
+  const { t } = useLanguage();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const [entry, setEntry] = React.useState(null);
@@ -107,48 +109,45 @@ export default function EditEntryPage() {
     <>
       <Header loading={loading} user={user} onLogout={handleLogout} />
       <main id="main" className="contribute-wrap">
-        <p className="contribute-kicker">KHMER LIVING ARCHIVE</p>
-        <h1 className="contribute-title">Edit Entry</h1>
+        <p className="contribute-kicker">{t("common.kicker")}</p>
+        <h1 className="contribute-title">{t("edit.title")}</h1>
         <p className="contribute-subtitle">
-          Fix what needs fixing, then save your changes.
+          {t("edit.subtitle")}
         </p>
         <div className="contribute-head-rule" aria-hidden="true" />
 
       {loading ? (
-        <p className="contribute-status">Loading entry…</p>
+        <p className="contribute-status">{t("entry.loading")}</p>
       ) : !entry ? (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            We couldn't find that entry. It may have been deleted.
+            {t("entry.notFound")}
           </p>
         </div>
       ) : !user ? (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            Editing works only for the person who contributed the entry. Log
-            in or create an account, then come back here to make changes.
+            {t("edit.gateText")}
           </p>
           <div className="contribute-gate-links">
             <a className="contribute-gate-link" href="/login">
-              Log In
+              {t("nav.login")}
             </a>
             <a className="contribute-gate-link" href="/signup">
-              Sign Up
+              {t("nav.signup")}
             </a>
           </div>
         </div>
       ) : !isOwner ? (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            You can only edit your own entries.
+            {t("edit.notOwner")}
           </p>
         </div>
       ) : !canEdit ? (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            This entry is already published, so it can't be edited here. You
-            can edit entries that are waiting for review or were returned to
-            you.
+            {t("edit.published")}
           </p>
         </div>
       ) : (
@@ -158,20 +157,21 @@ export default function EditEntryPage() {
               title_khmer: entry.title_khmer || "",
               title_english: entry.title_english || "",
               description: entry.description || "",
+              description_khmer: entry.description_khmer || "",
               contributor: entry.contributor || "",
               place: entry.place || "",
             }}
             initialImage={entry.image || ""}
             onSubmit={handleUpdate}
-            submitLabel="Save Changes"
-            submittingLabel="Saving…"
+            submitLabel={t("form.saveChanges")}
+            submittingLabel={t("form.saving")}
             optionalPhoto
           />
         </div>
       )}
 
         <a className="contribute-home-link" href={entry ? `/entries/${id}` : "/"}>
-          ← Back to {entry ? "this entry" : "the archive"}
+          {entry ? t("edit.backToEntry") : t("common.backToArchive")}
         </a>
       </main>
       <Footer />

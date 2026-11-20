@@ -9,6 +9,7 @@
 // visitors who prefer reduced motion. Before any photos exist it falls back to
 // the engraved crest, so the frame never reads as an empty picture card.
 import React from "react";
+import { useLanguage } from "./LanguageProvider.js";
 
 // Shortest signed distance from `from` to `to` walking around a ring of `n`
 // cards, so wrapping from the last card back to the first is one elegant step.
@@ -31,6 +32,7 @@ const prefersReducedMotion = () => {
 };
 
 export default function AboutSlider({ images }) {
+  const { t } = useLanguage();
   // Keep only entries that actually carry a photo path, so an empty field can
   // never produce a broken <img>.
   const list = React.useMemo(
@@ -212,7 +214,7 @@ export default function AboutSlider({ images }) {
               <button
                 type="button"
                 className="about-card-btn"
-                aria-label={`Show photo: ${img.alt}`}
+                aria-label={t("slider.showPhoto", { alt: img.alt })}
                 aria-hidden={hidden || undefined}
                 tabIndex={!hidden && Math.abs(step) === 1 ? 0 : -1}
                 onClick={() => {
@@ -243,7 +245,7 @@ export default function AboutSlider({ images }) {
             type="button"
             className="about-carousel-arrow about-carousel-prev"
             onClick={() => goTo(index - 1)}
-            aria-label="Show previous photo"
+            aria-label={t("slider.previous")}
           >
             ‹
           </button>
@@ -251,7 +253,7 @@ export default function AboutSlider({ images }) {
             type="button"
             className="about-carousel-arrow about-carousel-next"
             onClick={() => goTo(index + 1)}
-            aria-label="Show next photo"
+            aria-label={t("slider.next")}
           >
             ›
           </button>
@@ -269,7 +271,7 @@ export default function AboutSlider({ images }) {
                 type="button"
                 className={`about-carousel-dot${i === index ? " is-active" : ""}`}
                 onClick={() => setIndex(i)}
-                aria-label={`Show photo ${i + 1} of ${count}`}
+                aria-label={t("slider.showPhotoOf", { n: i + 1, count })}
                 aria-current={i === index ? "true" : undefined}
               />
             ))}

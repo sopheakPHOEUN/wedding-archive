@@ -15,11 +15,12 @@
 import React from "react";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 import ReviewSort from "./ReviewSort.js";
+import { useLanguage } from "./LanguageProvider.js";
 import "./contribute.css";
 import "./review.css";
 
-const displayTitle = (entry) =>
-  entry.title_khmer || entry.title_english || "Untitled";
+const displayTitle = (entry, fallback) =>
+  entry.title_khmer || entry.title_english || fallback;
 
 const formatSubmitted = (value) => {
   if (!value) return "";
@@ -32,6 +33,7 @@ const formatSubmitted = (value) => {
 };
 
 export default function ReviewQueue({ entries, loadError }) {
+  const { t, lang } = useLanguage();
   const [items, setItems] = React.useState(entries);
   const [reviewing, setReviewing] = React.useState(null); // { entryId, decision }
   const [lastResult, setLastResult] = React.useState(null); // { type, text }
@@ -58,7 +60,15 @@ export default function ReviewQueue({ entries, loadError }) {
     if (reviewing) return;
     setReviewing({ entryId: entry.id, decision });
     setLastResult(null);
-    const verb = decision === "published" ? "published" : "returned";
+    const verb =
+      lang === "km"
+        ? decision === "published"
+          ? "បានផ្សព្វផ្សាយ"
+          : "បានបញ្ជូនត្រឡប់វិញ"
+        : decision === "published"
+          ? "published"
+          : "returned";
+    const title = displayTitle(entry, t("common.untitled"));
     try {
       const supabase = createBrowserSupabaseClient();
       const { data, error } = await supabase.rpc("review_entry", {
@@ -69,7 +79,7 @@ export default function ReviewQueue({ entries, loadError }) {
         console.error("review_entry RPC error:", error);
         setLastResult({
           type: "error",
-          text: `We couldn't save the review of "${displayTitle(entry)}". Please try again.`,
+          text: t("review.saveError", { title }),
         });
         return;
       }
@@ -79,7 +89,7 @@ export default function ReviewQueue({ entries, loadError }) {
         console.error("review_entry returned", data, "for", entry.id, decision);
         setLastResult({
           type: "error",
-          text: `"${displayTitle(entry)}" wasn't ${verb}; only an authorized reviewer can change an entry's status.`,
+          text: t("review.notAuthorized", { title, verb }),
         });
         return;
       }
@@ -87,13 +97,13 @@ export default function ReviewQueue({ entries, loadError }) {
       setItems((current) => current.filter((item) => item.id !== entry.id));
       setLastResult({
         type: "success",
-        text: `"${displayTitle(entry)}" was ${verb}.`,
+        text: t("review.success", { title, verb }),
       });
     } catch (error) {
       console.error("Review error:", error);
       setLastResult({
         type: "error",
-        text: `We couldn't save the review of "${displayTitle(entry)}". Please try again.`,
+        text: t("review.saveError", { title }),
       });
     } finally {
       setReviewing(null);
@@ -129,7 +139,7 @@ export default function ReviewQueue({ entries, loadError }) {
       ) : items.length === 0 ? (
         <div className="contribute-card">
           <p className="contribute-gate-text">
-            No entries are waiting for review right now. — មិនមានធាតុកំពុងរង់ចាំការពិនិត្យនៅពេលនេះទេ។
+            {t("review.empty")}
           </p>
         </div>
       ) : (
@@ -140,7 +150,7 @@ export default function ReviewQueue({ entries, loadError }) {
             <li key={entry.id} className="review-item">
               <div className="review-item-titles">
                 <p className="review-item-title">
-                  {entry.title_khmer || "Untitled"}
+                  {entry.title_khmer || t("common.untitled")}
                 </p>
                 {entry.title_english ? (
                   <p className="review-item-title-english">
@@ -148,7 +158,7 @@ export default function ReviewQueue({ entries, loadError }) {
                   </p>
                 ) : null}
                 <span className="review-pending-chip">
-                  Pending — កំពុងរង់ចាំការពិនិត្យ
+                  {t("status.pending")}
                 </span>
               </div>
 
@@ -156,7 +166,11 @@ export default function ReviewQueue({ entries, loadError }) {
                 <img
                   className="review-item-photo"
                   src={entry.image}
-                  alt={entry.title_english || entry.title_khmer || "Entry photo"}
+                  alt={
+                    entry.title_english ||
+                    entry.title_khmer ||
+                    t("common.entryPhoto")
+                  }
                 />
               ) : null}
 
@@ -164,12 +178,18 @@ export default function ReviewQueue({ entries, loadError }) {
                 <p className="review-item-description">{entry.description}</p>
               ) : null}
 
+              {entry.description_khmer ? (
+                <p className="review-item-description review-item-description-khmer">
+                  {entry.description_khmer}
+                </p>
+              ) : null}
+
               <p className="review-item-meta">
-                LOCATION — {entry.place || "Not provided"}
+                {t("review.location", { place: entry.place || t("entry.notProvided") })}
               </p>
               {entry.created_at ? (
                 <p className="review-item-meta">
-                  SUBMITTED {formatSubmitted(entry.created_at)}
+                  {t("review.submitted", { date: formatSubmitted(entry.created_at) })}
                 </p>
               ) : null}
 
@@ -181,8 +201,8 @@ export default function ReviewQueue({ entries, loadError }) {
                   onClick={() => handleReview(entry, "published")}
                 >
                   {processingDecision(entry.id, "published")
-                    ? "Publishing…"
-                    : "Publish — ផ្សព្វផ្សាយ"}
+                    ? t("review.publishing")
+                    : t("review.publish")}
                 </button>
                 <button
                   type="button"
@@ -191,8 +211,8 @@ export default function ReviewQueue({ entries, loadError }) {
                   onClick={() => handleReview(entry, "returned")}
                 >
                   {processingDecision(entry.id, "returned")
-                    ? "Returning…"
-                    : "Return for change — បញ្ជូនត្រឡប់ដើម្បីកែប្រែ"}
+                    ? t("review.returning")
+                    : t("review.return")}
                 </button>
               </div>
             </li>
