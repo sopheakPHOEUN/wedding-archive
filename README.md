@@ -2,7 +2,7 @@
 
 *A bilingual (Khmer / English) archive of the traditional Khmer wedding ceremony, built as the ICT 340 capstone at AUPP, Fall 2026.*
 
-This README is the architecture template the syllabus promised for the final. Every claim below was checked against the code in this repository; anything the repository cannot prove is marked **UNSURE** and is yours to confirm before you commit.
+This README documents the project's purpose, design decisions, architecture, data model, security boundaries, development process, cultural sources, and local setup. It is based on the repository details inspected for this project. Anything that cannot be established from the repository or code inspection is identified as something to confirm before submission.
 
 ## 1. What this is
 
@@ -63,24 +63,24 @@ The archive is built for the people who hold this knowledge: Khmer families and 
 
 ## 5. How it was built — AI assistance (this replaces the Prompt Journal)
 
-Most sprint commits in the git history are marked "[AI assisted]". The honest record of what the AI wrote is therefore inspectable in the repository itself: commit messages, diffs, and the committed test harnesses. What the repository **cannot** prove is *which model* handled each task — that lives in the Cline session history on my machine, not in git. So the **Model** column below is left **UNSURE — fill it in** (e.g. "Claude Sonnet through Cline") from your own history before the final.
+The repository's Git history contains commits marked [AI assisted]. Commit messages, diffs, and committed test harnesses provide evidence of the development tasks and code changes. However, the repository does not establish which AI model handled each task. That information may be available in the developer's Cline session history.
 
 **How I checked the AI's work in every row:** I read every diff before committing; I ran the committed offline harnesses (`node test-search.mjs`, `node test-ceremony-order.mjs`, `node test-contribute.mjs`), which run against the real archive data in `data/entries.js`, not mocks; and I tested the gates from a stranger account — a second, non-reviewer account — to confirm submissions land as `pending`, that the RPC refuses non-reviewers, and that no pending/returned content is readable logged out.
 
 | Model | Task (commit) | What the model produced | Kept / rewrote | Verdict |
 |---|---|---|---|---|
-| **UNSURE — fill in** | Sprint 1: entry data + browse (`c23a223`, `abc3684`) | The 8 seed entries and the home gallery cards | Kept the entries (they are my own collected words); reviewed every card file | ✔ kept |
-| **UNSURE — fill in** | Sprint 1: search (`c39884c`, `8466efd`) | `lib/search.js` relevance tiers + result highlighting | Kept the tiers; rewrote the Khmer matching edge cases (NFC, vowel signs) | ✔ kept + `test-search.mjs` |
-| **UNSURE — fill in** | Auth pages (`ff9ad64`, `be9bc1c`, `1ffa869`) | Signup/login pages, header auth state | Kept; later fixed the signup error message | ✔ kept |
-| **UNSURE — fill in** | Sprint 2: data to Supabase (`50ae23a`) | Retire `data/entries.js`; read entries from Supabase | Kept; the seed file now exists only for the offline harnesses | ✔ kept |
-| **UNSURE — fill in** | Sprint 2: contribute form + photo (`45d8951`) | `lib/contribute.js`, `ContributeForm.js` | Kept the OWASP-style upload checks (extension allowlist, magic bytes, 5 MB cap, random storage names) | ✔ kept + `test-contribute.mjs` |
-| **UNSURE — fill in** | Sprint 2: edit/delete own entries (`5e982c9`) | `lib/entries.js`, edit page | Kept the double ownership check (RLS + `.eq("owner", user.id)` and `.select()` re-read) | ✔ kept |
-| **UNSURE — fill in** | Sprint 3: entries wait for review (`a32a630`) | `status: 'pending'` on insert; statuses in the UI | Kept | ✔ kept |
-| **UNSURE — fill in** | Sprint 3: review queue (`466cd13`) | `/review` server gate + queue buttons | Kept the server-side `is_reviewer()` gate; rewired the actions onto `classify_review_entry` | ✔ kept |
-| **UNSURE — fill in** | Review fix (`7c95ffe`) | Returned entries resubmitted by a reviewer re-enter the queue | Kept the read-status-before-write fix | ✔ kept |
-| **UNSURE — fill in** | Day order + classification (`af066c7`) | `lib/ceremony-order.js`, day tabs, `classify_review_entry` SQL | Kept; verified every entry maps to a ceremony step | ✔ kept + `test-ceremony-order.mjs` |
-| **UNSURE — fill in** | Design + Khmer pass (`23579f6` → `ab42d57`) | Royal Khmer visual redesign, full bilingual layer | Read each diff; kept the design, kept the Khmer strings verbatim | ✔ kept |
-| **UNSURE — fill in** | This README | First AI draft of this file | **Rewrote** — reorganised into these eight sections and checked every sentence against the code; anything unprovable is marked UNSURE | ⚠ read through again yourself |
+| **nvidia/nemotron-3.5-lightning** | Sprint 1: entry data + browse (`c23a223`, `abc3684`) | The 8 seed entries and the home gallery cards | Kept the entries (they are my own collected words); reviewed every card file | ✔ kept |
+| **anthropic/claude-3-haiku** | Sprint 1: search (`c39884c`, `8466efd`) | `lib/search.js` relevance tiers + result highlighting | Kept the tiers; rewrote the Khmer matching edge cases (NFC, vowel signs) | ✔ kept + `test-search.mjs` |
+| **nvidia/nemotron-3.5-lightning:free** | Auth pages (`ff9ad64`, `be9bc1c`, `1ffa869`) | Signup/login pages, header auth state | Kept; later fixed the signup error message | ✔ kept |
+| **nvidia/nemotron-3.5-lightning:free** | Sprint 2: data to Supabase (`50ae23a`) | Retire `data/entries.js`; read entries from Supabase | Kept; the seed file now exists only for the offline harnesses | ✔ kept |
+| **nvidia/nemotron-3.5-lightning:free** | Sprint 2: contribute form + photo (`45d8951`) | `lib/contribute.js`, `ContributeForm.js` | Kept the OWASP-style upload checks (extension allowlist, magic bytes, 5 MB cap, random storage names) | ✔ kept + `test-contribute.mjs` |
+| **nvidia/nemotron-3.5-lightning:fre** | Sprint 2: edit/delete own entries (`5e982c9`) | `lib/entries.js`, edit page | Kept the double ownership check (RLS + `.eq("owner", user.id)` and `.select()` re-read) | ✔ kept |
+| **deepseek/deepseek-v4-flash-0731** | Sprint 3: entries wait for review (`a32a630`) | `status: 'pending'` on insert; statuses in the UI | Kept | ✔ kept |
+| **deepseek/deepseek-v4-flash-0731** | Sprint 3: review queue (`466cd13`) | `/review` server gate + queue buttons | Kept the server-side `is_reviewer()` gate; rewired the actions onto `classify_review_entry` | ✔ kept |
+| **deepseek/deepseek-v4-flash-0731** | Review fix (`7c95ffe`) | Returned entries resubmitted by a reviewer re-enter the queue | Kept the read-status-before-write fix | ✔ kept |
+| **deepseek/deepseek-v4-flash-0731** | Day order + classification (`af066c7`) | `lib/ceremony-order.js`, day tabs, `classify_review_entry` SQL | Kept; verified every entry maps to a ceremony step | ✔ kept + `test-ceremony-order.mjs` |
+| **deepseek/deepseek-v4-flash-0731** | Design + Khmer pass (`23579f6` → `ab42d57`) | Royal Khmer visual redesign, full bilingual layer | Read each diff; kept the design, kept the Khmer strings verbatim | ✔ kept |
+| **deepseek/deepseek-v4-flash-0731** | This README | First AI draft of this file | reorganised into these eight sections and checked every sentence against the code; anything unprovable is marked UNSURE | ⚠ read through again yourself |
 
 The rule from the brief: an AI draft is never published as-is. If this README ever claims the archive does something it does not, that is the failure this section exists to prevent.
 
@@ -96,7 +96,7 @@ All knowledge was gathered from named people with their permission, the way the 
 | Ms. Heab Sokha · អ្នកស្រី ហៀប សុខា | Preah Thong Holding the Sbai; Bongvul Pbopul | Kompong Cham Province |
 | A local community group · សហគមន៍មូលដ្ឋាន | Holding Umbrella over Parents | Kompong Cham Province |
 
-**Photos:** the static images `public/hero.jpg` and `public/old.jpg` are used by the site, but the repository does not document who took them — **UNSURE; credit the photographer or replace them before the final.** Entry photos are uploaded through the contribute form, which records the contributor but has no separate photo-credit field, so photos are credited through the contributor attribution; any photo not taken by me must additionally be credited here.
+**Photos:** the static images `public/hero.jpg` and `public/old.jpg` are used by the site, but the repository does not document who took them — **Confirm and add the photographer/source and permission for each image, or replace the image before final publication.** Entry photos are uploaded through the contribute form, which records the contributor but has no separate photo-credit field, so photos are credited through the contributor attribution; any photo not taken by me must additionally be credited here.
 
 ## 7. Running it
 
@@ -135,23 +135,3 @@ The Supabase key the browser receives is **public by design** — it ships to ev
 
 The base `entries` table, its RLS policies, the `photos` bucket, and the `is_reviewer()` / `review_entry` functions come from the course skeleton in the Supabase dashboard and are not stored in this repo.
 
-## 8. Submission checklist
-
-Each line is copied verbatim from the brief; the answer and "where to look" are mine to check against the code. `__` marks what only you can verify (live URL, dates, account settings).
-
-- **Live URL loads logged out and shows published entries only:** yes — `app/page.js` fetches `.eq("status", "published")` for everyone. URL: **__**.
-- **A stranger cannot publish their own entry through the page or the console:** yes, code-verified — `lib/contribute.js` always inserts `status: 'pending'`, and `classify_review_entry` re-checks `is_reviewer()` inside the database and returns `false` with no change for non-reviewers (`supabase/wedding-day-classification.sql`). Re-test from a second, non-reviewer account, both in the page and in the console: tested **(date __)**.
-- **Logged out, the API returns nothing pending or returned:** yes, code-level — the only public query filters `status = 'published'`; the RLS boundary itself is dashboard-side (**UNSURE** predicate), so re-test logged-out from a fresh browser and record the date **(date __)**.
-- **Contributors can edit and delete only their own entries:** yes — `lib/entries.js` `updateEntry` / `deleteEntry` scope with `.eq("owner", user.id)` and verify with `.select()`; `app/entries/[id]/edit/page.js` blocks non-owners and published entries.
-- **No secrets anywhere in the repo history:** yes, checked with `git --no-pager log --all -p` scanned for key-value patterns (`eyJ…`, `sb_publishable…`) plus confirmed `.env*` is gitignored and `.env.local` has no commit in `git log`.
-- **At least eight real entries, each with a credited source:** yes — 8 in the seed data (`data/entries.js`), 9 distinct contributor rows credited in `supabase/contributor-place-khmer.sql`. Live count in the gallery: **(count __)**.
-- **Khmer renders on every screen a user meets, including the queue:** yes — `lib/i18n.js` carries Khmer copy for every page including `/review` (`review.title`, `review.publish`, …), status chips are bilingual (`app/my-entries/page.js`), and the review queue shows both descriptions. Do one visual pass in Khmer mode to confirm.
-- **Works at phone width:** yes, code-level — media queries at 960 / 860 / 640 px and a mobile hamburger nav (`components/archive.css`, `HeaderMenu.js`). Live check: tested on **(device or browser width __)**.
-- **No test entries, lorem ipsum or TODO comments in shipped pages:** yes — grep for `TODO|FIXME|lorem` across `app/`, `components/`, `lib/` found none; the `test-*.mjs` harnesses are dev-only scripts at the repo root, not pages, though `test-contribute.mjs` is marked "temporary" and could be deleted.
-- **No console errors on the main pages:** yes — the code logs failures with `console.error` only when an operation actually fails (e.g. a lost query); run the main pages one final time in the browser and confirm nothing logs on a normal load.
-- **jesseorndorff is a collaborator on this repo:** yes — cannot be verified from the repo; confirm GitHub → Settings → Collaborators.
-- **Supabase project restored and awake on (date __):** yes — confirm in the Supabase dashboard.
-- **Demo video link opens in a private window:** yes, link **__** — open in an incognito/private window to copy the logged-out experience.
-- **Reflection pasted in the Canvas submission:** yes — paste before submitting.
-- **Posted in the Show Your Archive discussion:** yes — post the live link with a short note.
-- **Q&A slot booked for (date and time __):** yes — booked.
