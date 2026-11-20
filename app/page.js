@@ -21,6 +21,8 @@ import Ornament from "../components/Ornament.js";
 import Reveal from "../components/Reveal.js";
 import Lightbox from "../components/Lightbox.js";
 import AboutSlider from "../components/AboutSlider.js";
+import DayTabs from "../components/DayTabs.js";
+import ChronologicalGallery from "../components/ChronologicalGallery.js";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 import {
   fetchArchiveDescription,
@@ -91,6 +93,9 @@ const cardProps = (result, t, lang) => {
 export default function Home() {
   const { t, lang } = useLanguage();
   const [searchTerm, setSearchTerm] = React.useState("");
+  // Day filter for the gallery: null = both days (overview), 0 = Day 1, 1 = Day 2.
+  // Only applies while browsing; a search always uses the relevance-ranked list.
+  const [activeDay, setActiveDay] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [isReviewer, setIsReviewer] = React.useState(false);
@@ -168,6 +173,9 @@ export default function Home() {
           console.error("Error fetching entries with id order:", fallbackError);
           throw new Error(fallbackError.message);
         }
+        // Chronological placement is reviewer-confirmed per entry (wedding_day +
+        // screen_order), so entries are kept in the fetch order; the gallery
+        // splits and orders them below.
         setEntries(fallbackData || []);
       } else {
         setEntries(data || []);
@@ -250,10 +258,40 @@ export default function Home() {
   const restResults =
     searchResults.length > 1 ? searchResults.slice(1) : [];
 
+  // When nothing is typed the whole archive is browsed book-style, so it can be
+  // shown in the ceremony's two verified days plus a separate "more" section.
+  // During a search the flat relevance-ranked list stays in charge (no day
+  // grouping). Only published entries with BOTH a wedding day and a sequence
+  // position belong to the chronological Day 1 / Day 2 galleries; everything
+  // else (contributor chose "Other / Not sure", or a curator hasn't placed it
+  // yet) is kept separate so it never distorts the verified order.
+  const browsing = search.mode === "browse";
+  const day1 = [];
+  const day2 = [];
+  const more = [];
+  for (const result of searchResults) {
+    const entry = result.entry;
+    if (!entry) continue;
+    if (entry.wedding_day === "day1" && entry.screen_order != null) {
+      day1.push(result);
+    } else if (entry.wedding_day === "day2" && entry.screen_order != null) {
+      day2.push(result);
+    } else {
+      more.push(result);
+    }
+  }
+  // Sequence position decides the order inside each day; "more" keeps the
+  // fetch order (newest submissions first).
+  const bySequence = (a, b) => a.entry.screen_order - b.entry.screen_order;
+  day1.sort(bySequence);
+  day2.sort(bySequence);
+  const day1Cards = day1.map((result) => cardProps(result, t, lang));
+  const day2Cards = day2.map((result) => cardProps(result, t, lang));
+  const moreCards = more.map((result) => cardProps(result, t, lang));
+
   // Photos for the About slider: every published entry that has an image.
-  // entries are already ordered newest first, so the slide show follows the
-  // same order as the gallery below. Entries without a photo are skipped so
-  // no broken <img> can appear in the frame.
+  // entries follow the fetch order (newest submissions first), and only entries
+  // with a photo are kept so no broken <img> can appear in the frame.
   const aboutImages = React.useMemo(
     () =>
       (entries || [])
@@ -471,28 +509,40 @@ export default function Home() {
               </div>
             </>
           ) : firstResult ? (
-            <>
-              <Reveal className="gallery-featured">
-                <EntryCard
-                  {...cardProps(firstResult, t, lang)}
-                  num={1}
-                  featured
+            browsing ? (
+              <>
+                <DayTabs activeDay={activeDay} onChange={setActiveDay} />
+                <ChronologicalGallery
+                  day1={day1Cards}
+                  day2={day2Cards}
+                  more={moreCards}
+                  activeDay={activeDay}
                 />
-              </Reveal>
+              </>
+            ) : (
+              <>
+                <Reveal className="gallery-featured">
+                  <EntryCard
+                    {...cardProps(firstResult, t, lang)}
+                    num={1}
+                    featured
+                  />
+                </Reveal>
 
-              {restResults.length ? (
-                <div className="gallery-grid">
-                  {restResults.map((result, index) => (
-                    <Reveal key={result.entry.id} delay={(index % 3) * 90}>
-                      <EntryCard
-                        {...cardProps(result, t, lang)}
-                        num={index + 2}
-                      />
-                    </Reveal>
-                  ))}
-                </div>
-              ) : null}
-            </>
+                {restResults.length ? (
+                  <div className="gallery-grid">
+                    {restResults.map((result, index) => (
+                      <Reveal key={result.entry.id} delay={(index % 3) * 90}>
+                        <EntryCard
+                          {...cardProps(result, t, lang)}
+                          num={index + 2}
+                        />
+                      </Reveal>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            )
           ) : search.mode === "no-meaningful" ? (
             <div className="collection-state">
               <p className="collection-state-title">

@@ -103,6 +103,14 @@ export default function EntryDetailPage() {
   const isOwner = Boolean(user && entry && entry.owner === user.id);
   const hasImage =
     typeof entry?.image === "string" && entry.image.trim().length > 0;
+  // The entry's two titles. The main heading follows the language toggle (English
+  // leads with the English name, Khmer with the Khmer name) and the other name
+  // stays beneath it, so both versions are always on the plate.
+  const khmerTitle = entry?.title_khmer || entry?.titleKhmer || "";
+  const englishTitle = entry?.title_english || entry?.titleEnglish || "";
+  const primaryTitle = lang === "km" ? khmerTitle : englishTitle;
+  const secondaryTitle = lang === "km" ? englishTitle : khmerTitle;
+
   // Show the description in the active language, falling back to the other
   // language so the plate is never left empty.
   const descriptionInLang =
@@ -172,11 +180,17 @@ export default function EntryDetailPage() {
           </div>
         ) : (
           <>
-            <h1 className="detail-title">
-              {entry.title_khmer || entry.titleKhmer || ""}
+            <h1
+              className="detail-title"
+              lang={lang === "km" ? "km" : "en"}
+            >
+              {primaryTitle}
             </h1>
-            <p className="detail-title-english">
-              {entry.title_english || entry.titleEnglish || ""}
+            <p
+              className="detail-title-english"
+              lang={lang === "km" ? "en" : "km"}
+            >
+              {secondaryTitle}
             </p>
             <div className="detail-rule" aria-hidden="true" />
 

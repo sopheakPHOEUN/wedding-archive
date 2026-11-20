@@ -27,12 +27,22 @@ export default function EntryCard({
   featured = false,
   matchLabel = "",
 }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   // An entry with no description yet still renders; we just skip that paragraph.
   const hasDescription =
     typeof description === "string" && description.trim().length > 0;
   const hasImage = typeof image === "string" && image.trim().length > 0;
   const number = num ? String(num).padStart(2, "0") : "01";
+
+  // Each entry carries its Khmer (`title`) and romanized English (`titleEnglish`)
+  // names. The big line follows the site's language toggle — English mode leads
+  // with the English name, Khmer mode with the Khmer name — and the other name
+  // stays beneath it, so both versions are always present.
+  const isKhmer = lang === "km";
+  const primaryTitle = isKhmer ? title : titleEnglish;
+  const secondaryTitle = isKhmer ? titleEnglish : title;
+  const primaryLang = isKhmer ? "km" : "en";
+  const secondaryLang = isKhmer ? "en" : "km";
 
   if (featured) {
     return (
@@ -62,16 +72,18 @@ export default function EntryCard({
             {matchLabel ? (
               <p className="entry-card-match">{matchLabel}</p>
             ) : null}
-            {title ? (
+            {primaryTitle ? (
               <h3
                 className="entry-card-title-khmer"
-                dangerouslySetInnerHTML={{ __html: title }}
+                lang={primaryLang}
+                dangerouslySetInnerHTML={{ __html: primaryTitle }}
               />
             ) : null}
-            {titleEnglish ? (
+            {secondaryTitle ? (
               <p
                 className="entry-card-title-english"
-                dangerouslySetInnerHTML={{ __html: titleEnglish }}
+                lang={secondaryLang}
+                dangerouslySetInnerHTML={{ __html: secondaryTitle }}
               />
             ) : null}
             {hasDescription ? (
@@ -123,16 +135,18 @@ export default function EntryCard({
           {matchLabel ? (
             <p className="entry-card-match">{matchLabel}</p>
           ) : null}
-          {title ? (
+          {primaryTitle ? (
             <h3
               className="entry-card-title-khmer"
-              dangerouslySetInnerHTML={{ __html: title }}
+              lang={primaryLang}
+              dangerouslySetInnerHTML={{ __html: primaryTitle }}
             />
           ) : null}
-          {titleEnglish ? (
+          {secondaryTitle ? (
             <p
               className="entry-card-title-english"
-              dangerouslySetInnerHTML={{ __html: titleEnglish }}
+              lang={secondaryLang}
+              dangerouslySetInnerHTML={{ __html: secondaryTitle }}
             />
           ) : null}
           {hasDescription ? (

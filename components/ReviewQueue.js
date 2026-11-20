@@ -1,10 +1,16 @@
 // components/ReviewQueue.js - The reviewer's queue of pending entries.
 // The server page (app/review/page.js) vets the session, runs the is_reviewer
-// RPC, and passes the pending entries in as props. This component only owns the
-// two decisions: Publish calls review_entry with decision 'published', Return
-// calls it with 'returned'. An entry leaves the list only when the RPC returns
-// no error AND exactly true; on any failure an error banner appears and the
-// entry stays put. The reviewer never sees who contributed an entry.
+// RPC, and passes the pending entries in as props. This component owns three
+// actions per entry, all through the classify_review_entry RPC:
+//   - Publish             → decision 'published' (day + sequence are saved too)
+//   - Save day & position → decision 'pending' (classification only; the entry
+//                           stays in the queue, so unknown ones can remain
+//                           pending classification)
+//   - Return              → decision 'returned'
+// An entry leaves the list only when the RPC returns no error AND exactly true;
+// on any failure an error banner appears and the entry stays put. The reviewer
+// never sees who contributed an entry, but the contributor's own wedding-day
+// guess is shown so the reviewer can confirm or change it.
 //
 // Above the list, ReviewSort.js lets the reviewer flip between oldest-first
 // (ascending) and newest-first (descending) submission date order. That sort
@@ -15,6 +21,8 @@
 import React from "react";
 import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 import ReviewSort from "./ReviewSort.js";
+import ReviewClassification from "./ReviewClassification.js";
+import { weddingDayLabel } from "../lib/ceremony-order.js";
 import { useLanguage } from "./LanguageProvider.js";
 import "./contribute.css";
 import "./review.css";
@@ -32,9 +40,23 @@ const formatSubmitted = (value) => {
   });
 };
 
+// One editable draft (wedding day + sequence) per entry, pre-filled with the
+// contributor's guess and any sequence already stored on the row.
+const buildDrafts = (list) => {
+  const drafts = {};
+  for (const entry of list || []) {
+    drafts[entry.id] = {
+      day: entry.wedding_day || "",
+      sequence: entry.screen_order != null ? String(entry.screen_order) : "",
+    };
+  }
+  return drafts;
+};
+
 export default function ReviewQueue({ entries, loadError }) {
   const { t, lang } = useLanguage();
   const [items, setItems] = React.useState(entries);
+  const [drafts, setDrafts] = React.useState(() => buildDrafts(entries));
   const [reviewing, setReviewing] = React.useState(null); // { entryId, decision }
   const [lastResult, setLastResult] = React.useState(null); // { type, text }
   // "asc" = submitted oldest first (matches how the server page orders the
@@ -56,27 +78,48 @@ export default function ReviewQueue({ entries, loadError }) {
     );
   }, [items, sortOrder]);
 
+  const updateDraft = (id, patch) =>
+    setDrafts((current) => ({
+      ...current,
+      [id]: { ...(current[id] || { day: "", sequence: "" }), ...patch },
+    }));
+
   const handleReview = async (entry, decision) => {
     if (reviewing) return;
+    const draft = drafts[entry.id] || { day: "", sequence: "" };
+    // A blank sequence stays NULL; anything that is not a positive integer is
+    // treated as unpositioned rather than saved as a nonsense number.
+    let position = null;
+    if (draft.sequence.trim() !== "") {
+      const parsed = Number.parseInt(draft.sequence, 10);
+      if (!Number.isNaN(parsed) && parsed >= 1) position = parsed;
+    }
+
     setReviewing({ entryId: entry.id, decision });
     setLastResult(null);
     const verb =
-      lang === "km"
-        ? decision === "published"
-          ? "បានផ្សព្វផ្សាយ"
-          : "បានបញ្ជូនត្រឡប់វិញ"
-        : decision === "published"
-          ? "published"
-          : "returned";
+      decision === "pending"
+        ? lang === "km"
+          ? "បានរក្សាទុកការកំណត់"
+          : "classification saved"
+        : lang === "km"
+          ? decision === "published"
+            ? "បានផ្សព្វផ្សាយ"
+            : "បានបញ្ជូនត្រឡប់វិញ"
+          : decision === "published"
+            ? "published"
+            : "returned";
     const title = displayTitle(entry, t("common.untitled"));
     try {
       const supabase = createBrowserSupabaseClient();
-      const { data, error } = await supabase.rpc("review_entry", {
+      const { data, error } = await supabase.rpc("classify_review_entry", {
         entry_id: entry.id,
         decision,
+        day_value: draft.day || null,
+        position_value: position,
       });
       if (error) {
-        console.error("review_entry RPC error:", error);
+        console.error("classify_review_entry RPC error:", error);
         setLastResult({
           type: "error",
           text: t("review.saveError", { title }),
@@ -86,15 +129,29 @@ export default function ReviewQueue({ entries, loadError }) {
       // The RPC returns a boolean. Anything but true means the database did not
       // apply the decision, so it is never reported as a success.
       if (data !== true) {
-        console.error("review_entry returned", data, "for", entry.id, decision);
+        console.error(
+          "classify_review_entry returned",
+          data,
+          "for",
+          entry.id,
+          decision
+        );
         setLastResult({
           type: "error",
           text: t("review.notAuthorized", { title, verb }),
         });
         return;
       }
-      // Success: drop the entry from the queue. The failure paths above keep it.
-      setItems((current) => current.filter((item) => item.id !== entry.id));
+      // "Save day & position" keeps the entry in the queue (still pending);
+      // Publish / Return drop it from the list.
+      if (decision !== "pending") {
+        setItems((current) => current.filter((item) => item.id !== entry.id));
+        setDrafts((current) => {
+          const next = { ...current };
+          delete next[entry.id];
+          return next;
+        });
+      }
       setLastResult({
         type: "success",
         text: t("review.success", { title, verb }),
@@ -144,84 +201,120 @@ export default function ReviewQueue({ entries, loadError }) {
         </div>
       ) : (
         <>
+          <p className="review-classify-note">{t("review.unclassifiedNote")}</p>
           <ReviewSort order={sortOrder} onChange={setSortOrder} />
           <ul className="review-list">
-            {sortedItems.map((entry) => (
-            <li key={entry.id} className="review-item">
-              <div className="review-item-titles">
-                <p className="review-item-title">
-                  {entry.title_khmer || t("common.untitled")}
-                </p>
-                {entry.title_english ? (
-                  <p className="review-item-title-english">
-                    {entry.title_english}
+            {sortedItems.map((entry) => {
+              const draft = drafts[entry.id] || { day: "", sequence: "" };
+              return (
+              <li key={entry.id} className="review-item">
+                <div className="review-item-titles">
+                  <p className="review-item-title">
+                    {entry.title_khmer || t("common.untitled")}
+                  </p>
+                  {entry.title_english ? (
+                    <p className="review-item-title-english">
+                      {entry.title_english}
+                    </p>
+                  ) : null}
+                  <span className="review-pending-chip">
+                    {t("status.pending")}
+                  </span>
+                </div>
+
+                {entry.image ? (
+                  <img
+                    className="review-item-photo"
+                    src={entry.image}
+                    alt={
+                      entry.title_english ||
+                      entry.title_khmer ||
+                      t("common.entryPhoto")
+                    }
+                  />
+                ) : null}
+
+                {entry.description ? (
+                  <p className="review-item-description">{entry.description}</p>
+                ) : null}
+
+                {entry.description_khmer ? (
+                  <p className="review-item-description review-item-description-khmer">
+                    {entry.description_khmer}
                   </p>
                 ) : null}
-                <span className="review-pending-chip">
-                  {t("status.pending")}
-                </span>
-              </div>
 
-              {entry.image ? (
-                <img
-                  className="review-item-photo"
-                  src={entry.image}
-                  alt={
-                    entry.title_english ||
-                    entry.title_khmer ||
-                    t("common.entryPhoto")
-                  }
-                />
-              ) : null}
-
-              {entry.description ? (
-                <p className="review-item-description">{entry.description}</p>
-              ) : null}
-
-              {entry.description_khmer ? (
-                <p className="review-item-description review-item-description-khmer">
-                  {entry.description_khmer}
-                </p>
-              ) : null}
-
-              <p className="review-item-meta">
-                {t("review.location", {
-                  place:
-                    lang === "km" && (entry.place_khmer || "").trim()
-                      ? entry.place_khmer
-                      : entry.place || t("entry.notProvided"),
-                })}
-              </p>
-              {entry.created_at ? (
                 <p className="review-item-meta">
-                  {t("review.submitted", { date: formatSubmitted(entry.created_at) })}
+                  {t("review.location", {
+                    place:
+                      lang === "km" && (entry.place_khmer || "").trim()
+                        ? entry.place_khmer
+                        : entry.place || t("entry.notProvided"),
+                  })}
                 </p>
-              ) : null}
+                {entry.created_at ? (
+                  <p className="review-item-meta">
+                    {t("review.submitted", { date: formatSubmitted(entry.created_at) })}
+                  </p>
+                ) : null}
 
-              <div className="review-item-actions">
-                <button
-                  type="button"
-                  className="review-button review-button-publish"
+                <p className="review-item-meta">
+                  {t("review.weddingDayAssigned")}:{" "}
+                  <span
+                    className={
+                      entry.wedding_day
+                        ? "review-day-chip"
+                        : "review-day-chip review-day-chip-unset"
+                    }
+                  >
+                    {entry.wedding_day
+                      ? weddingDayLabel(entry.wedding_day)
+                      : t("review.notClassified")}
+                  </span>
+                </p>
+
+                <ReviewClassification
+                  day={draft.day}
+                  sequence={draft.sequence}
+                  onChange={(patch) => updateDraft(entry.id, patch)}
                   disabled={processingFor(entry.id)}
-                  onClick={() => handleReview(entry, "published")}
-                >
-                  {processingDecision(entry.id, "published")
-                    ? t("review.publishing")
-                    : t("review.publish")}
-                </button>
-                <button
-                  type="button"
-                  className="review-button review-button-return"
-                  disabled={processingFor(entry.id)}
-                  onClick={() => handleReview(entry, "returned")}
-                >
-                  {processingDecision(entry.id, "returned")
-                    ? t("review.returning")
-                    : t("review.return")}
-                </button>
-              </div>
-            </li>
-          ))}
+                />
+
+                <div className="review-item-actions">
+                  <button
+                    type="button"
+                    className="review-button review-button-classify"
+                    disabled={processingFor(entry.id)}
+                    onClick={() => handleReview(entry, "pending")}
+                  >
+                    {processingDecision(entry.id, "pending")
+                      ? t("review.saving")
+                      : t("review.saveClassification")}
+                  </button>
+                  <button
+                    type="button"
+                    className="review-button review-button-publish"
+                    disabled={processingFor(entry.id)}
+                    onClick={() => handleReview(entry, "published")}
+                  >
+                    {processingDecision(entry.id, "published")
+                      ? t("review.publishing")
+                      : t("review.publish")}
+                  </button>
+                  <button
+                    type="button"
+                    className="review-button review-button-return"
+                    disabled={processingFor(entry.id)}
+                    onClick={() => handleReview(entry, "returned")}
+                  >
+                    {processingDecision(entry.id, "returned")
+                      ? t("review.returning")
+                      : t("review.return")}
+                  </button>
+                </div>
+              </li>
+              );
+            })}
           </ul>
         </>
       )}

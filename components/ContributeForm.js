@@ -10,7 +10,18 @@ import { createBrowserSupabaseClient } from "../lib/supabase-browser.js";
 import { submitEntry } from "../lib/contribute.js";
 import FormField from "./FormField.js";
 import { useLanguage } from "./LanguageProvider.js";
+import { WEDDING_DAY_OPTIONS } from "../lib/ceremony-order.js";
 import "./contribute.css";
+
+// The wedding-day choices shown to the contributor, each with BOTH the full
+// English name and the Khmer name so listeners can see both versions at a
+// glance. (The stored values stay day1 / day2 / other; the shared
+// WEDDING_DAY_OPTIONS used by the review queue keeps its own shorter labels.)
+const WEDDING_DAY_LABELS = {
+  day1: "Day 1 — Setting Up & Blessing · ថ្ងៃទី ១ ចូលរោង និងសូត្រមន្ត",
+  day2: "Day 2 — The Main Wedding Day · ថ្ងៃទី ២ ថ្ងៃសំពះផ្ទឹម",
+  other: "Other / Not sure · មិនទាន់កំណត់",
+};
 
 const TEXT_FIELDS = [
   {
@@ -84,6 +95,7 @@ export default function ContributeForm({
     place: initialValues.place || "",
     place_khmer: initialValues.place_khmer || "",
     image_url: currentImage,
+    wedding_day: initialValues.wedding_day || "",
   });
   const [imageFile, setImageFile] = React.useState(null);
   const [fieldErrors, setFieldErrors] = React.useState({});
@@ -219,6 +231,31 @@ export default function ContributeForm({
             </FormField>
           )
           )}
+
+          <FormField
+            id="wedding_day"
+            label={t("form.weddingDay")}
+            required
+            hint={t("form.weddingDayHint")}
+            error={tError(error("wedding_day"))}
+          >
+            <select
+              id="wedding_day"
+              className="form-select"
+              value={values.wedding_day}
+              onChange={update("wedding_day")}
+              disabled={submitting}
+            >
+              <option value="" disabled>
+                {t("form.weddingDayPlaceholder")}
+              </option>
+              {WEDDING_DAY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {WEDDING_DAY_LABELS[option.value] || option.label}
+                </option>
+              ))}
+            </select>
+          </FormField>
 
           <FormField
             id="image_file"

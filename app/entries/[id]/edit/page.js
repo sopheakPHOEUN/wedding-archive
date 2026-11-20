@@ -162,6 +162,7 @@ export default function EditEntryPage() {
               contributor_khmer: entry.contributor_khmer || "",
               place: entry.place || "",
               place_khmer: entry.place_khmer || "",
+              wedding_day: entry.wedding_day || "",
             }}
             initialImage={entry.image || ""}
             onSubmit={handleUpdate}
