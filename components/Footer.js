@@ -12,7 +12,13 @@ import { useLanguage } from "./LanguageProvider.js";
 import "./archive.css";
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // The creator's name follows the active language: Khmer when the site is in
+  // Khmer, English fallback so the credit is never blank.
+  const name =
+    lang === "km" && (collection.curatorKhmer || "").trim()
+      ? collection.curatorKhmer
+      : collection.curator;
   return (
     <footer className="heritage-footer">
       <div className="heritage-footer-top" aria-hidden="true" />
@@ -26,7 +32,7 @@ export default function Footer() {
           <span />
         </div>
         <p className="heritage-footer-credit">
-          {t("footer.curatedBy", { name: collection.curator })}
+          {t("footer.curatedBy", { name })}
         </p>
         <p className="heritage-footer-note">{t("footer.note")}</p>
       </div>

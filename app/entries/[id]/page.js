@@ -109,6 +109,17 @@ export default function EntryDetailPage() {
     lang === "km" && (entry?.description_khmer || "").trim()
       ? entry.description_khmer
       : entry?.description || entry?.description_khmer || "";
+  // Contributor name and place switch to the Khmer spelling when the site is
+  // in Khmer and the entry has one, falling back to the English value so the
+  // plate is never left empty (same rule as the description above).
+  const contributorInLang =
+    lang === "km" && (entry?.contributor_khmer || "").trim()
+      ? entry.contributor_khmer
+      : entry?.contributor || "";
+  const placeInLang =
+    lang === "km" && (entry?.place_khmer || "").trim()
+      ? entry.place_khmer
+      : entry?.place || "";
   const backLabel = backInfo.fromSearch
     ? t("entry.backToResults")
     : t("entry.backToArchive");
@@ -202,11 +213,11 @@ export default function EntryDetailPage() {
                 <dl className="detail-meta">
                   <div className="detail-meta-row">
                     <dt>{t("entry.contributor")}</dt>
-                    <dd>{entry.contributor || t("entry.notProvided")}</dd>
+                    <dd>{contributorInLang || t("entry.notProvided")}</dd>
                   </div>
                   <div className="detail-meta-row">
                     <dt>{t("entry.place")}</dt>
-                    <dd>{entry.place || t("entry.notProvided")}</dd>
+                    <dd>{placeInLang || t("entry.notProvided")}</dd>
                   </div>
                 </dl>
 

@@ -73,8 +73,17 @@ const cardProps = (result, t, lang) => {
       fieldTerms.title_english
     ),
     description: highlightText(descriptionText, descriptionTerms),
-    contributor: entry.contributor || "",
-    place: entry.place || "",
+    // Contributor name and place switch to Khmer with the rest of the site:
+    // each shows the Khmer spelling when it exists, and falls back to the
+    // English value so a card is never left empty.
+    contributor:
+      lang === "km" && (entry.contributor_khmer || "").trim()
+        ? entry.contributor_khmer
+        : entry.contributor || "",
+    place:
+      lang === "km" && (entry.place_khmer || "").trim()
+        ? entry.place_khmer
+        : entry.place || "",
     matchLabel,
   };
 };
@@ -263,6 +272,21 @@ export default function Home() {
       ? archiveDescription.description_khmer
       : archiveDescription.description;
 
+  // The "Knowledge gathered from" note also follows the active language: the
+  // Khmer sentence lives in collection.config.js, with the English note as the
+  // fallback so the About section never shows empty text.
+  const sourceInLang =
+    lang === "km" && (collection.sourceKhmer || "").trim()
+      ? collection.sourceKhmer
+      : collection.source;
+
+  // The creator (curator) name follows the same rule: Khmer spelling when the
+  // site is in Khmer, English name as the fallback.
+  const curatorInLang =
+    lang === "km" && (collection.curatorKhmer || "").trim()
+      ? collection.curatorKhmer
+      : collection.curator;
+
   return (
     <>
       <Header
@@ -346,11 +370,11 @@ export default function Home() {
                   <p className="about-note-label">
                     {t("home.knowledgeGatheredFrom")}
                   </p>
-                  <p className="about-note-text">{collection.source}</p>
+                  <p className="about-note-text">{sourceInLang}</p>
                   <p className="about-credit">
                     {t("home.curatedBy")}{" "}
                     <strong style={{ color: "#4a2525" }}>
-                      {collection.curator}
+                      {curatorInLang}
                     </strong>
                   </p>
                 </div>

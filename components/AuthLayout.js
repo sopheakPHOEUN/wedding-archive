@@ -17,7 +17,13 @@ import { useLanguage } from "./LanguageProvider.js";
 import "./auth.css";
 
 export default function AuthLayout({ title, children, brandImage }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // The creator's name follows the active language: Khmer when the site is in
+  // Khmer, English fallback so the legend is never blank.
+  const name =
+    lang === "km" && (collection.curatorKhmer || "").trim()
+      ? collection.curatorKhmer
+      : collection.curator;
   return (
     <div className="auth-page">
       <div className="auth-lang">
@@ -56,7 +62,7 @@ export default function AuthLayout({ title, children, brandImage }) {
 
           <footer className="auth-legend">
             <p style={{ margin: 0 }}>
-              {t("auth.legend", { name: collection.curator })}
+              {t("auth.legend", { name })}
             </p>
           </footer>
         </div>

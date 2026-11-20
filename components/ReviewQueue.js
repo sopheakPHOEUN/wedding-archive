@@ -185,7 +185,12 @@ export default function ReviewQueue({ entries, loadError }) {
               ) : null}
 
               <p className="review-item-meta">
-                {t("review.location", { place: entry.place || t("entry.notProvided") })}
+                {t("review.location", {
+                  place:
+                    lang === "km" && (entry.place_khmer || "").trim()
+                      ? entry.place_khmer
+                      : entry.place || t("entry.notProvided"),
+                })}
               </p>
               {entry.created_at ? (
                 <p className="review-item-meta">
