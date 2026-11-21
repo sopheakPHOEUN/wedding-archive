@@ -297,7 +297,14 @@ export default function Home() {
       (entries || [])
         .map((entry) => ({
           src: typeof entry.image === "string" ? entry.image : "",
+          // Khmer-first caption for the Khmer site; altEnglish carries the
+          // English title through to the slider so the caption can follow the
+          // language toggle in AboutSlider.js.
           alt: entry.title_khmer || entry.title_english || t("common.archivePhoto"),
+          altEnglish:
+            entry.title_english ||
+            entry.title_khmer ||
+            t("common.archivePhoto"),
         }))
         .filter((img) => img.src.trim().length > 0),
     [entries, t]

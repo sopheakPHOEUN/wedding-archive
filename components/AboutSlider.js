@@ -32,7 +32,7 @@ const prefersReducedMotion = () => {
 };
 
 export default function AboutSlider({ images }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   // Keep only entries that actually carry a photo path, so an empty field can
   // never produce a broken <img>.
   const list = React.useMemo(
@@ -261,7 +261,13 @@ export default function AboutSlider({ images }) {
       ) : null}
 
       <div className="about-carousel-meta">
-        <p className="about-carousel-caption">{list[index].alt}</p>
+        <p className="about-carousel-caption">
+          {/* Follow the language toggle: the English title in English mode,
+              otherwise the Khmer-first string used so far. */}
+          {lang === "en" && list[index].altEnglish
+            ? list[index].altEnglish
+            : list[index].alt}
+        </p>
 
         {count > 1 ? (
           <div className="about-carousel-dots">
