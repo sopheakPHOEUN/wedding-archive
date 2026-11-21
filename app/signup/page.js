@@ -48,7 +48,7 @@ export default function SignupPage() {
   };
   
   return (
-    <AuthLayout title={t("auth.signupTitle")}>
+    <AuthLayout title={t("auth.signupTitle")} brandImage="/hero.jpg">
       <AuthForm
         type="signup"
         onSubmit={handleSignup}
